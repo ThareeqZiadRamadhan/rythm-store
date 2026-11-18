@@ -204,3 +204,33 @@
 @media (prefers-reduced-motion: reduce) {
   .fade-up { animation: none; }
 }
+
+/* Ganti kategori di shop: konten lama geser ke kiri, konten baru masuk dari kanan */
+.shop-vt {
+  view-transition-name: shop-content;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+::view-transition-group(shop-content) {
+  animation-duration: 0.45s;
+}
+::view-transition-old(shop-content) {
+  animation: vt-out 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(shop-content) {
+  animation: vt-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}

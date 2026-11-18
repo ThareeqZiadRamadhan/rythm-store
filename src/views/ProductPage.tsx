@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Heart, Truck } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
@@ -250,9 +251,12 @@ function ProductDetail({
             <div className="mt-8">
               <div className="flex items-center justify-between">
                 <p className="font-medium">Pilih ukuran</p>
-                <button type="button" className="text-sm text-black/55 hover:text-black">
+                <Link
+                  href="/fit"
+                  className="text-sm text-black/55 underline-offset-4 hover:text-black hover:underline"
+                >
                   Panduan ukuran
-                </button>
+                </Link>
               </div>
               <div
                 className={`mt-3 grid grid-cols-3 gap-2 rounded-lg ${
