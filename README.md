@@ -24,24 +24,28 @@ Frontend dan backend berada dalam satu project. Backend ditulis sebagai API Rout
 - Klaim voucher, dengan kuota dan masa berlaku
 - Keranjang, checkout (pilih alamat, metode bayar, voucher), dan riwayat pesanan
 - Stok per ukuran tampil langsung di halaman produk
+- Pencarian produk dengan hasil langsung saat mengetik (bisa dibuka dengan Cmd+K)
+- Ulasan produk bintang 1–5, dengan label **Pembeli terverifikasi** bagi yang pernah memesan
 
 ### Admin (`ADMIN`)
 Semua fitur pelanggan, ditambah:
 - **Dashboard**: pendapatan, jumlah pesanan, rata-rata nilai pesanan, pasang terjual (filter 7/30/90 hari, dibanding periode sebelumnya), grafik pendapatan harian, produk terlaris, penjualan per kategori, metode pembayaran, stok menipis
 - **Produk**: tambah, edit, hapus, atur stok per ukuran (EU 38–45), tampilkan atau sembunyikan dari toko
 - **Pesanan**: lihat semua pesanan dan ubah status secara berurutan (Menunggu konfirmasi → Diproses → Dikirim → Selesai, atau Dibatalkan). Pembatalan otomatis mengembalikan stok dan voucher
+- **Ulasan**: hapus ulasan yang tidak pantas (moderasi)
 
 ### Superadmin (`SUPERADMIN`)
 Semua fitur admin, ditambah:
 - **Voucher**: buat, edit, aktif/nonaktifkan, atur kuota klaim, lihat statistik klaim, pemakaian, dan total potongan
-- **Pengguna**: lihat semua akun dan ubah role (tidak bisa mengubah role sendiri)
-- **Log aktivitas**: catatan siapa mengubah apa dan kapan (produk, stok, harga, status pesanan, role, voucher)
+- **Pengguna**: lihat semua akun, ubah role, serta blokir dan aktifkan akun (tidak bisa untuk akun sendiri)
+- **Pengaturan toko**: teks pengumuman di atas navbar, ongkir, dan batas gratis ongkir. Langsung berlaku di keranjang, checkout, dan perhitungan total di server
+- **Log aktivitas**: catatan siapa mengubah apa dan kapan (produk, stok, harga, status pesanan, role, blokir akun, voucher, pengaturan toko, hapus ulasan)
 
 Halaman yang tidak sesuai peran menampilkan 404, dan setiap API admin mengecek role langsung ke database.
 
 ## Struktur database
 
-Database `rythm` berisi 5 koleksi. Alamat, wishlist, voucher milik user, ukuran/stok, dan item pesanan disimpan sebagai subdokumen (embedded).
+Database `rythm` berisi 7 koleksi. Alamat, wishlist, voucher milik user, ukuran/stok, dan item pesanan disimpan sebagai subdokumen (embedded).
 
 ~~~mermaid
 erDiagram
@@ -54,6 +58,8 @@ erDiagram
   ORDERS ||--|{ ORDER_ITEMS : embeds
   ORDER_ITEMS }o--|| PRODUCTS : snapshot_of
   USERS ||--o{ ACTIVITYLOGS : performs
+  USERS ||--o{ REVIEWS : writes
+  PRODUCTS ||--o{ REVIEWS : receives
 
   USERS {
     objectId _id PK
@@ -62,6 +68,7 @@ erDiagram
     string phone
     string passwordHash
     string role
+    boolean isBlocked
     array wishlist FK
   }
   ADDRESSES {
@@ -123,6 +130,21 @@ erDiagram
     string target
     string detail
   }
+  REVIEWS {
+    objectId _id PK
+    objectId product FK
+    objectId user FK
+    int rating
+    string comment
+    boolean verified
+  }
+  STORESETTINGS {
+    string key UK
+    boolean announcementEnabled
+    string announcementText
+    int shippingFee
+    int freeShippingMin
+  }
 ~~~
 
 | Koleksi | Isi |
@@ -132,6 +154,8 @@ erDiagram
 | `vouchers` | Daftar voucher beserta kuota |
 | `orders` | Pesanan, dengan snapshot item dan alamat saat checkout |
 | `activitylogs` | Catatan aktivitas admin dan superadmin |
+| `reviews` | Ulasan produk (satu ulasan per user per produk) |
+| `storesettings` | Pengaturan toko: pengumuman, ongkir, batas gratis ongkir |
 
 **Kenapa snapshot di pesanan?** Nama, harga, gambar, dan alamat disalin saat checkout, supaya riwayat pesanan tidak berubah walau admin mengedit produk atau user menghapus alamat.
 
@@ -211,6 +235,7 @@ shoes-store/
     │   ├── shop/          # Koleksi & detail produk
     │   ├── login/         # Masuk
     │   ├── register/      # Daftar
+    │   ├── search/        # Hasil pencarian
     │   └── men, women, new, sale/
     ├── components/        # Komponen UI (termasuk components/admin)
     ├── lib/               # Auth, koneksi DB, katalog, harga, voucher, helper
@@ -223,7 +248,8 @@ shoes-store/
 - Password disimpan sebagai hash bcrypt dan tidak pernah dikirim ke browser
 - Sesi berupa JWT di cookie `httpOnly`, sehingga tidak bisa dibaca JavaScript
 - Role tidak pernah diambil dari input pengguna. Akun baru selalu `USER`, dan role hanya bisa diubah oleh superadmin
-- Harga, stok, dan voucher selalu dihitung ulang di server saat checkout
+- Setiap request mengecek status akun ke database, jadi akun yang diblokir atau dihapus langsung dianggap keluar
+- Harga, stok, voucher, dan ongkir selalu dihitung ulang di server saat checkout
 - Klaim kuota voucher dan pengurangan stok dilakukan secara atomik di database
 - `.env.local` tidak ikut ter-commit. Gunakan `.env.example` sebagai contoh
 
