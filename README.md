@@ -43,7 +43,7 @@ Halaman yang tidak sesuai peran menampilkan 404, dan setiap API admin mengecek r
 
 Database `rythm` berisi 5 koleksi. Alamat, wishlist, voucher milik user, ukuran/stok, dan item pesanan disimpan sebagai subdokumen (embedded).
 
-```mermaid
+~~~mermaid
 erDiagram
   USERS ||--o{ ADDRESSES : embeds
   USERS ||--o{ USER_VOUCHERS : embeds
@@ -123,7 +123,7 @@ erDiagram
     string target
     string detail
   }
-```
+~~~
 
 | Koleksi | Isi |
 |---|---|
@@ -143,7 +143,7 @@ erDiagram
 
 ### Langkah
 
-```bash
+~~~bash
 # 1. Clone dan install
 git clone <url-repo> && cd shoes-store
 npm install
@@ -155,7 +155,7 @@ brew services start mongodb/brew/mongodb-community@8.0
 
 # 3. Buat file konfigurasi
 cp .env.example .env.local
-```
+~~~
 
 Buka `.env.local` lalu isi:
 
@@ -166,13 +166,13 @@ Buka `.env.local` lalu isi:
 | `SEED_SUPERADMIN_EMAIL` / `SEED_SUPERADMIN_PASSWORD` | Akun superadmin yang dibuat oleh seed (password min. 8 karakter) |
 | `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | Akun admin yang dibuat oleh seed |
 
-```bash
+~~~bash
 # 4. Isi data awal (produk, voucher, akun superadmin & admin)
 npm run seed
 
 # 5. Jalankan
 npm run dev
-```
+~~~
 
 Buka http://localhost:3000.
 
@@ -195,21 +195,28 @@ Buka http://localhost:3000.
 | `SALE15` | 15%, maks. Rp250.000 | Rp1.000.000 | 100 |
 
 ## Struktur folder
+
+~~~text
 shoes-store/
-├── scripts/seed.ts # Isi data awal (npm run seed)
-├── public/shoes/ # Gambar produk
+├── scripts/
+│   └── seed.ts            # Isi data awal (npm run seed)
+├── public/
+│   └── shoes/             # Gambar produk
 └── src/
-├── app/
-│ ├── account/ # Halaman akun pelanggan
-│ ├── admin/ # Panel admin & superadmin
-│ ├── api/ # Backend (API Route)
-│ ├── checkout/
-│ ├── shop/ # Koleksi & detail produk
-│ └── login, register, men, women, new, sale
-├── components/ # Komponen UI (termasuk components/admin)
-├── lib/ # Auth, koneksi DB, katalog, harga, voucher, helper
-├── models/ # Skema Mongoose
-└── views/ # Halaman besar (Beranda, Koleksi, Produk, Auth)
+    ├── app/
+    │   ├── account/       # Halaman akun pelanggan
+    │   ├── admin/         # Panel admin & superadmin
+    │   ├── api/           # Backend (API Route)
+    │   ├── checkout/      # Halaman checkout
+    │   ├── shop/          # Koleksi & detail produk
+    │   ├── login/         # Masuk
+    │   ├── register/      # Daftar
+    │   └── men, women, new, sale/
+    ├── components/        # Komponen UI (termasuk components/admin)
+    ├── lib/               # Auth, koneksi DB, katalog, harga, voucher, helper
+    ├── models/            # Skema Mongoose
+    └── views/             # Halaman besar (Beranda, Koleksi, Produk, Auth)
+~~~
 
 ## Keamanan
 
