@@ -1,36 +1,230 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RYTHM/ — Toko Sepatu Online
 
-## Getting Started
+Website e-commerce sepatu dengan tampilan bergaya Nike, dibangun dengan **Next.js (App Router)** dan **MongoDB**. Project ini dibuat untuk uji kompetensi dan mencakup alur belanja lengkap, dari daftar akun sampai pesanan, serta panel pengelolaan toko dengan tiga peran pengguna.
 
-First, run the development server:
+## Teknologi
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Bagian | Teknologi |
+|---|---|
+| Framework | Next.js (App Router), React, TypeScript |
+| Tampilan | Tailwind CSS v4, lucide-react |
+| Database | MongoDB + Mongoose |
+| Autentikasi | JWT (jose) di cookie `httpOnly`, password di-hash dengan bcrypt |
+| Seed data | `tsx` (`npm run seed`) |
+
+Frontend dan backend berada dalam satu project. Backend ditulis sebagai API Route di `src/app/api`.
+
+## Fitur per peran
+
+### Pelanggan (`USER`)
+- Daftar dua langkah (cek email, lalu isi data diri) dan login
+- Profil: ubah nama dan nomor HP, buku alamat (maks. 5, ada alamat utama)
+- Ganti password
+- Wishlist tersimpan di akun
+- Klaim voucher, dengan kuota dan masa berlaku
+- Keranjang, checkout (pilih alamat, metode bayar, voucher), dan riwayat pesanan
+- Stok per ukuran tampil langsung di halaman produk
+
+### Admin (`ADMIN`)
+Semua fitur pelanggan, ditambah:
+- **Dashboard**: pendapatan, jumlah pesanan, rata-rata nilai pesanan, pasang terjual (filter 7/30/90 hari, dibanding periode sebelumnya), grafik pendapatan harian, produk terlaris, penjualan per kategori, metode pembayaran, stok menipis
+- **Produk**: tambah, edit, hapus, atur stok per ukuran (EU 38–45), tampilkan atau sembunyikan dari toko
+- **Pesanan**: lihat semua pesanan dan ubah status secara berurutan (Menunggu konfirmasi → Diproses → Dikirim → Selesai, atau Dibatalkan). Pembatalan otomatis mengembalikan stok dan voucher
+
+### Superadmin (`SUPERADMIN`)
+Semua fitur admin, ditambah:
+- **Voucher**: buat, edit, aktif/nonaktifkan, atur kuota klaim, lihat statistik klaim, pemakaian, dan total potongan
+- **Pengguna**: lihat semua akun dan ubah role (tidak bisa mengubah role sendiri)
+- **Log aktivitas**: catatan siapa mengubah apa dan kapan (produk, stok, harga, status pesanan, role, voucher)
+
+Halaman yang tidak sesuai peran menampilkan 404, dan setiap API admin mengecek role langsung ke database.
+
+## Struktur database
+
+Database `rythm` berisi 5 koleksi. Alamat, wishlist, voucher milik user, ukuran/stok, dan item pesanan disimpan sebagai subdokumen (embedded).
+
+```mermaid
+erDiagram
+  USERS ||--o{ ADDRESSES : embeds
+  USERS ||--o{ USER_VOUCHERS : embeds
+  USERS }o--o{ PRODUCTS : wishlist
+  USER_VOUCHERS }o--|| VOUCHERS : refers
+  USERS ||--o{ ORDERS : places
+  PRODUCTS ||--o{ VARIANTS : embeds
+  ORDERS ||--|{ ORDER_ITEMS : embeds
+  ORDER_ITEMS }o--|| PRODUCTS : snapshot_of
+  USERS ||--o{ ACTIVITYLOGS : performs
+
+  USERS {
+    objectId _id PK
+    string name
+    string email UK
+    string phone
+    string passwordHash
+    string role
+    array wishlist FK
+  }
+  ADDRESSES {
+    string label
+    string recipient
+    string street
+    string city
+    string postalCode
+    boolean isDefault
+  }
+  USER_VOUCHERS {
+    objectId voucher FK
+    date claimedAt
+    date usedAt
+  }
+  PRODUCTS {
+    objectId _id PK
+    string slug UK
+    string name
+    string category
+    string gender
+    int price
+    int oldPrice
+    boolean isActive
+  }
+  VARIANTS {
+    int size
+    int stock
+  }
+  VOUCHERS {
+    objectId _id PK
+    string code UK
+    string type
+    int value
+    int minSpend
+    int quota
+    int claimedCount
+    date expiresAt
+  }
+  ORDERS {
+    objectId _id PK
+    string orderNumber UK
+    objectId user FK
+    int total
+    string voucherCode
+    string paymentMethod
+    string status
+  }
+  ORDER_ITEMS {
+    objectId product FK
+    string name
+    int size
+    int quantity
+    int price
+  }
+  ACTIVITYLOGS {
+    objectId actor FK
+    string action
+    string target
+    string detail
+  }
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Koleksi | Isi |
+|---|---|
+| `users` | Akun, role, alamat, wishlist, voucher yang diklaim |
+| `products` | Produk dan stok per ukuran |
+| `vouchers` | Daftar voucher beserta kuota |
+| `orders` | Pesanan, dengan snapshot item dan alamat saat checkout |
+| `activitylogs` | Catatan aktivitas admin dan superadmin |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Kenapa snapshot di pesanan?** Nama, harga, gambar, dan alamat disalin saat checkout, supaya riwayat pesanan tidak berubah walau admin mengedit produk atau user menghapus alamat.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cara menjalankan
 
-## Learn More
+### Prasyarat
+- Node.js 20.6 atau lebih baru
+- MongoDB (lokal lewat Homebrew, atau MongoDB Atlas)
 
-To learn more about Next.js, take a look at the following resources:
+### Langkah
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# 1. Clone dan install
+git clone <url-repo> && cd shoes-store
+npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 2. Jalankan MongoDB (macOS + Homebrew)
+brew tap mongodb/brew
+brew install mongodb-community@8.0
+brew services start mongodb/brew/mongodb-community@8.0
 
-## Deploy on Vercel
+# 3. Buat file konfigurasi
+cp .env.example .env.local
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Buka `.env.local` lalu isi:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variabel | Keterangan |
+|---|---|
+| `MONGODB_URI` | Default `mongodb://127.0.0.1:27017/rythm` |
+| `AUTH_SECRET` | Isi dengan hasil `openssl rand -base64 32` |
+| `SEED_SUPERADMIN_EMAIL` / `SEED_SUPERADMIN_PASSWORD` | Akun superadmin yang dibuat oleh seed (password min. 8 karakter) |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | Akun admin yang dibuat oleh seed |
+
+```bash
+# 4. Isi data awal (produk, voucher, akun superadmin & admin)
+npm run seed
+
+# 5. Jalankan
+npm run dev
+```
+
+Buka http://localhost:3000.
+
+### Akun demo
+
+| Peran | Email | Password |
+|---|---|---|
+| Superadmin | sesuai `SEED_SUPERADMIN_EMAIL` | sesuai `SEED_SUPERADMIN_PASSWORD` |
+| Admin | sesuai `SEED_ADMIN_EMAIL` | sesuai `SEED_ADMIN_PASSWORD` |
+| Pelanggan | daftar sendiri di `/register` | |
+
+`npm run seed` aman dijalankan berulang kali. Seed hanya mengisi data yang belum ada dan tidak menimpa perubahan dari panel admin.
+
+### Voucher bawaan
+
+| Kode | Potongan | Min. belanja | Kuota |
+|---|---|---|---|
+| `WELCOME10` | 10%, maks. Rp150.000 | Rp500.000 | Tanpa batas |
+| `HEMAT100` | Rp100.000 | Rp1.500.000 | 50 |
+| `SALE15` | 15%, maks. Rp250.000 | Rp1.000.000 | 100 |
+
+## Struktur folder
+shoes-store/
+├── scripts/seed.ts # Isi data awal (npm run seed)
+├── public/shoes/ # Gambar produk
+└── src/
+├── app/
+│ ├── account/ # Halaman akun pelanggan
+│ ├── admin/ # Panel admin & superadmin
+│ ├── api/ # Backend (API Route)
+│ ├── checkout/
+│ ├── shop/ # Koleksi & detail produk
+│ └── login, register, men, women, new, sale
+├── components/ # Komponen UI (termasuk components/admin)
+├── lib/ # Auth, koneksi DB, katalog, harga, voucher, helper
+├── models/ # Skema Mongoose
+└── views/ # Halaman besar (Beranda, Koleksi, Produk, Auth)
+
+## Keamanan
+
+- Password disimpan sebagai hash bcrypt dan tidak pernah dikirim ke browser
+- Sesi berupa JWT di cookie `httpOnly`, sehingga tidak bisa dibaca JavaScript
+- Role tidak pernah diambil dari input pengguna. Akun baru selalu `USER`, dan role hanya bisa diubah oleh superadmin
+- Harga, stok, dan voucher selalu dihitung ulang di server saat checkout
+- Klaim kuota voucher dan pengurangan stok dilakukan secara atomik di database
+- `.env.local` tidak ikut ter-commit. Gunakan `.env.example` sebagai contoh
+
+## Perintah
+
+| Perintah | Fungsi |
+|---|---|
+| `npm run dev` | Menjalankan mode development |
+| `npm run seed` | Mengisi data awal |
+| `npm run build` | Build untuk production |
+| `npx tsc --noEmit` | Cek error TypeScript |
