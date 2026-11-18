@@ -35,35 +35,41 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
         </div>
       )}
       <header className="sticky top-0 z-40 border-b border-black/10 bg-[#f7f7f2]/92 backdrop-blur-xl">
-        <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 md:px-10">
-          <button
-            className="grid size-10 place-items-center rounded-full border border-black/15 lg:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Buka menu"
-          >
-            {menuOpen ? <X size={19} /> : <Menu size={19} />}
-          </button>
-          <Link href="/" className="text-[25px] font-black tracking-[-0.08em]">
+        <div className="mx-auto grid h-[76px] max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-5 md:px-10">
+          {/* Kiri: menu */}
+          <div className="flex items-center justify-start">
+            <button
+              className="grid size-10 place-items-center rounded-full border border-black/15 lg:hidden"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Buka menu"
+            >
+              {menuOpen ? <X size={19} /> : <Menu size={19} />}
+            </button>
+            <nav className="hidden items-center gap-8 lg:flex">
+              {navItems.map(([label, path]) => {
+                const isActive = pathname === path || pathname.startsWith(path + "/");
+                return (
+                  <Link
+                    key={path}
+                    href={path}
+                    className={`text-[15px] font-semibold transition-colors hover:text-[#769500] ${
+                      isActive ? "text-[#769500]" : ""
+                    } ${path === "/sale" ? "!text-[#e2533f]" : ""}`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Tengah: logo */}
+          <Link href="/" className="justify-self-center text-[25px] font-black tracking-[-0.08em]">
             RYTHM<span className="text-[#8daa13]">/</span>
           </Link>
-          <nav className="hidden items-center gap-8 lg:flex">
-            {navItems.map(([label, path]) => {
-              const isActive = pathname === path || pathname.startsWith(path + "/");
-              return (
-                <Link
-                  key={path}
-                  href={path}
-                  className={`text-sm font-semibold transition-colors hover:text-[#769500] ${
-                    isActive ? "text-[#769500]" : ""
-                  } ${path === "/sale" ? "!text-[#e2533f]" : ""}`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
 
-          <div className="flex items-center gap-1 sm:gap-2">
+          {/* Kanan: cari, akun, keranjang */}
+          <div className="flex items-center justify-end gap-1 sm:gap-2">
             <SearchButton />
             <AccountMenu user={user} ready={ready} onLogout={logout} />
 
