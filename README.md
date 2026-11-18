@@ -1,6 +1,6 @@
 # RYTHM/ — Toko Sepatu Online
 
-Website e-commerce sepatu dengan tampilan bergaya Nike, dibangun dengan **Next.js (App Router)** dan **MongoDB**. Project ini dibuat untuk uji kompetensi dan mencakup alur belanja lengkap, dari daftar akun sampai pesanan, serta panel pengelolaan toko dengan tiga peran pengguna.
+Website e-commerce sepatu dengan tampilan modern, dibangun dengan **Next.js (App Router)** dan **MongoDB**. Project ini dibuat untuk uji kompetensi dan mencakup alur belanja lengkap, dari daftar akun sampai pesanan, serta panel pengelolaan toko dengan tiga peran pengguna.
 
 ## Teknologi
 
