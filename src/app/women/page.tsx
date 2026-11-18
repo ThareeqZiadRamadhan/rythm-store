@@ -1,5 +1,10 @@
 import ShopPage from "@/views/ShopPage";
+import { getProducts } from "@/lib/catalog";
 
-export default function Page() {
-  return <ShopPage mode="women" />;
+export const metadata = { title: "Wanita — RYTHM" };
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
+  const products = await getProducts();
+  return <ShopPage mode="women" products={products} />;
 }

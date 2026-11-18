@@ -1,5 +1,10 @@
 import ShopPage from "@/views/ShopPage";
+import { getProducts } from "@/lib/catalog";
 
-export default function Page() {
-  return <ShopPage mode="new" />;
+export const metadata = { title: "Terbaru — RYTHM" };
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
+  const products = await getProducts();
+  return <ShopPage mode="new" products={products} />;
 }

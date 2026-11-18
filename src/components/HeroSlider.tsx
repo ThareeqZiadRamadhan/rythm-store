@@ -3,9 +3,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { products } from "@/lib/data";
+import type { Product } from "@/lib/catalog-types";
 
-const slides = products.slice(0, 5);
 const INTERVAL_MS = 5000;
 const SLIDE_MS = 900;
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
@@ -14,7 +13,8 @@ const TICKS = 126; // 0..25 langkah 0.2
 const wordOf = (name: string) => name.split(" ")[0];
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
-export default function HeroSlider() {
+export default function HeroSlider({ products }: { products: Product[] }) {
+  const slides = products.slice(0, 5);
   const n = slides.length;
   const [index, setIndex] = useState(0);
   const [reduced, setReduced] = useState(false);
@@ -29,10 +29,12 @@ export default function HeroSlider() {
   }, []);
 
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || n < 2) return;
     const t = setTimeout(() => setIndex((i) => (i + 1) % n), INTERVAL_MS);
     return () => clearTimeout(t);
   }, [index, reduced, n]);
+
+  if (n === 0) return null;
 
   return (
     <section className="border-b border-black/10 bg-[#eeeee9]">

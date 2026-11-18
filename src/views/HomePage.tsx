@@ -16,14 +16,9 @@ import Link from "next/link";
 import HeroSlider from "@/components/HeroSlider";
 import ProductCard from "@/components/ProductCard";
 import MemberCta from "@/components/MemberCta";
-import { products } from "@/lib/data";
+import type { Product } from "@/lib/catalog-types";
 
-const categoryTiles = [
-  { label: "Pria", href: "/men", image: products[3].image, sale: false },
-  { label: "Wanita", href: "/women", image: products[1].image, sale: false },
-  { label: "Terbaru", href: "/new", image: products[4].image, sale: false },
-  { label: "Sale", href: "/sale", image: products[0].image, sale: true },
-];
+
 
 const perks = [
   { icon: Truck, title: "Gratis ongkir", text: "Untuk pembelian mulai Rp999 ribu" },
@@ -86,11 +81,22 @@ function SectionHeading({
   );
 }
 
-export default function HomePage() {
+export default function HomePage({ products }: { products: Product[] }) {
+  const pick = (match: (p: Product) => boolean, fromEnd = false) => {
+    const list = fromEnd ? [...products].reverse() : products;
+    return (list.find(match) ?? products[0])?.image;
+  };
+  const categoryTiles = [
+    { label: "Pria", href: "/men", image: pick((p) => p.gender === "Pria"), sale: false },
+    { label: "Wanita", href: "/women", image: pick((p) => p.gender === "Wanita"), sale: false },
+    { label: "Terbaru", href: "/new", image: pick((p) => p.tag === "New", true), sale: false },
+    { label: "Sale", href: "/sale", image: pick((p) => Boolean(p.oldPrice)), sale: true },
+  ].filter((t): t is { label: string; href: string; image: string; sale: boolean } => Boolean(t.image));
+
   return (
     <>
       {/* 1. Hero */}
-      <HeroSlider />
+      <HeroSlider products={products} />
 
       {/* 2. Kepercayaan */}
       <section className="border-b border-black/10 bg-white">

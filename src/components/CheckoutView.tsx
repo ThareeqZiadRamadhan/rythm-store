@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Check, Loader2, MapPin, ShoppingBag } from "lucide-react";
-import { formatPrice, products, type Product } from "@/lib/data";
+import { formatPrice } from "@/lib/data";
 import { useStore } from "@/lib/store";
 import { FREE_SHIPPING_MIN, calcDiscount, shippingFor } from "@/lib/pricing";
 import type { AddressDTO } from "@/lib/address";
@@ -16,7 +16,13 @@ const payments = [
   { id: "COD", label: "Bayar di tempat (COD)", desc: "Bayar tunai saat sepatu sampai" },
 ];
 
-type Line = { product: Product; size: number; quantity: number };
+type Line = {
+  product: { id: string; slug: string; name: string; image: string; color: string; price: number };
+  size: number;
+  quantity: number;
+};
+
+export type CatalogInfo = Record<string, { price: number; stock: Record<number, number> }>;
 
 function Section({
   title,
@@ -82,9 +88,11 @@ function Row({ label, value, accent }: { label: string; value: string; accent?: 
 export default function CheckoutView({
   addresses,
   vouchers,
+  catalog,
 }: {
   addresses: AddressDTO[];
   vouchers: VoucherDTO[];
+  catalog: CatalogInfo;
 }) {
   const router = useRouter();
   const { cart, ready, clearCart } = useStore();
@@ -96,9 +104,31 @@ export default function CheckoutView({
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState("");
 
-  const lines: Line[] = cart.flatMap((item) => {
-    const product = products.find((p) => p.id === item.productId);
-    return product ? [{ product, size: item.size, quantity: item.quantity }] : [];
+  const lines: Line[] = cart.map((item) => ({
+    product: {
+      id: item.slug,
+      slug: item.slug,
+      name: item.name,
+      image: item.image,
+      color: item.color,
+      // Harga terbaru dari database, bukan harga saat dimasukkan ke keranjang
+      price: catalog[item.slug]?.price ?? item.price,
+    },
+    size: item.size,
+    quantity: item.quantity,
+  }));
+
+  // Masalah stok/produk yang harus dibereskan sebelum bisa memesan
+  const problems = lines.flatMap((l) => {
+    const info = catalog[l.product.slug];
+    if (!info) return [`${l.product.name} sudah tidak dijual.`];
+    const left = info.stock[l.size] ?? 0;
+    if (left >= l.quantity) return [];
+    return [
+      left === 0
+        ? `${l.product.name} EU ${l.size} stoknya habis.`
+        : `${l.product.name} EU ${l.size} hanya tersisa ${left} pasang.`,
+    ];
   });
 
   const subtotal = lines.reduce((s, l) => s + l.product.price * l.quantity, 0);
@@ -324,9 +354,20 @@ export default function CheckoutView({
             <p className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
           )}
 
+          {problems.length > 0 && (
+            <div className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p className="font-bold">Ubah isi keranjang dulu:</p>
+              <ul className="mt-1 list-disc pl-5">
+                {problems.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <button
             onClick={placeOrder}
-            disabled={placing || !addressId}
+            disabled={placing || !addressId || problems.length > 0}
             className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#11120f] font-bold text-white transition hover:bg-black/80 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {placing ? (

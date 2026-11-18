@@ -4,7 +4,8 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Menu, Minus, Plus, ShoppingBag, Truck, X } from "lucide-react";
-import { formatPrice, products } from "@/lib/data";
+import { formatPrice } from "@/lib/data";
+import { FREE_SHIPPING_MIN } from "@/lib/pricing";
 import { StoreProvider, useStore } from "@/lib/store";
 import { AccountMenu, MobileAccountLinks, useSession } from "@/components/AccountMenu";
 
@@ -22,10 +23,7 @@ function Shell({ children }: { children: ReactNode }) {
   const { cart, cartOpen, setCartOpen, updateCart } = useStore();
   const { user, ready, logout } = useSession();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cart.reduce((sum, item) => {
-    const product = products.find((entry) => entry.id === item.productId);
-    return sum + (product?.price || 0) * item.quantity;
-  }, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-[#f7f7f2] text-[#11120f]">
@@ -144,6 +142,7 @@ function Shell({ children }: { children: ReactNode }) {
               </div>
               <button
                 onClick={() => setCartOpen(false)}
+                aria-label="Tutup keranjang"
                 className="grid size-10 place-items-center rounded-full border border-black/10"
               >
                 <X size={19} />
@@ -169,54 +168,48 @@ function Shell({ children }: { children: ReactNode }) {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {cart.map((item) => {
-                    const product = products.find((entry) => entry.id === item.productId);
-                    if (!product) return null;
-                    return (
-                      <div key={`${item.productId}-${item.size}`} className="flex gap-4">
-                        <Link
-                          href={`/shop/${product.slug}`}
-                          onClick={() => setCartOpen(false)}
-                          className="size-24 shrink-0 overflow-hidden rounded-2xl"
-                          style={{ backgroundColor: product.color }}
-                        >
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="h-full w-full object-cover mix-blend-multiply"
-                          />
-                        </Link>
-                        <div className="flex flex-1 flex-col justify-between py-1">
-                          <div>
-                            <h3 className="font-bold">{product.name}</h3>
-                            <p className="mt-1 text-xs text-black/45">Size {item.size}</p>
+                  {cart.map((item) => (
+                    <div key={`${item.slug}-${item.size}`} className="flex gap-4">
+                      <Link
+                        href={`/shop/${item.slug}`}
+                        onClick={() => setCartOpen(false)}
+                        className="size-24 shrink-0 overflow-hidden rounded-2xl"
+                        style={{ backgroundColor: item.color }}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="h-full w-full object-cover mix-blend-multiply"
+                        />
+                      </Link>
+                      <div className="flex flex-1 flex-col justify-between py-1">
+                        <div>
+                          <h3 className="font-bold">{item.name}</h3>
+                          <p className="mt-1 text-xs text-black/45">Size {item.size}</p>
+                        </div>
+                        <div className="flex items-end justify-between">
+                          <div className="flex items-center rounded-full border border-black/15">
+                            <button
+                              onClick={() => updateCart(item.slug, item.size, -1)}
+                              aria-label="Kurangi"
+                              className="grid size-8 place-items-center"
+                            >
+                              <Minus size={13} />
+                            </button>
+                            <span className="w-6 text-center text-xs font-bold">{item.quantity}</span>
+                            <button
+                              onClick={() => updateCart(item.slug, item.size, 1)}
+                              aria-label="Tambah"
+                              className="grid size-8 place-items-center"
+                            >
+                              <Plus size={13} />
+                            </button>
                           </div>
-                          <div className="flex items-end justify-between">
-                            <div className="flex items-center rounded-full border border-black/15">
-                              <button
-                                onClick={() => updateCart(item.productId, item.size, -1)}
-                                className="grid size-8 place-items-center"
-                              >
-                                <Minus size={13} />
-                              </button>
-                              <span className="w-6 text-center text-xs font-bold">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => updateCart(item.productId, item.size, 1)}
-                                className="grid size-8 place-items-center"
-                              >
-                                <Plus size={13} />
-                              </button>
-                            </div>
-                            <p className="text-sm font-bold">
-                              {formatPrice(product.price * item.quantity)}
-                            </p>
-                          </div>
+                          <p className="text-sm font-bold">{formatPrice(item.price * item.quantity)}</p>
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -224,9 +217,9 @@ function Shell({ children }: { children: ReactNode }) {
               <div className="border-t border-black/10 bg-white p-6">
                 <div className="mb-4 flex items-center gap-2 text-xs text-black/50">
                   <Truck size={15} />{" "}
-                  {subtotal >= 999000
+                  {subtotal >= FREE_SHIPPING_MIN
                     ? "Pesananmu bebas ongkir"
-                    : `Tambah ${formatPrice(999000 - subtotal)} lagi untuk gratis ongkir`}
+                    : `Tambah ${formatPrice(FREE_SHIPPING_MIN - subtotal)} lagi untuk gratis ongkir`}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Subtotal</span>

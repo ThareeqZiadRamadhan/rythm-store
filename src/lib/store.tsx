@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { CartProduct } from "@/lib/catalog-types";
 
-type CartItem = {
-  productId: number;
+export type CartItem = CartProduct & {
   size: number;
   quantity: number;
 };
@@ -13,13 +13,25 @@ type StoreContextValue = {
   cartOpen: boolean;
   ready: boolean;
   setCartOpen: (open: boolean) => void;
-  addToCart: (productId: number, size?: number, quantity?: number) => void;
-  updateCart: (productId: number, size: number, direction: number) => void;
+  addToCart: (product: CartProduct, size: number, quantity?: number) => void;
+  updateCart: (slug: string, size: number, direction: number) => void;
   clearCart: () => void;
 };
 
-const STORAGE_KEY = "rythm_cart";
+const STORAGE_KEY = "rythm_cart_v2";
 const StoreContext = createContext<StoreContextValue | null>(null);
+
+function isCartItem(x: unknown): x is CartItem {
+  const i = x as CartItem;
+  return (
+    !!i &&
+    typeof i.slug === "string" &&
+    typeof i.name === "string" &&
+    typeof i.price === "number" &&
+    typeof i.size === "number" &&
+    typeof i.quantity === "number"
+  );
+}
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -28,9 +40,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
+      localStorage.removeItem("rythm_cart"); // format lama
       const raw = localStorage.getItem(STORAGE_KEY);
       const parsed = raw ? JSON.parse(raw) : [];
-      if (Array.isArray(parsed)) setCart(parsed);
+      if (Array.isArray(parsed)) setCart(parsed.filter(isCartItem));
     } catch {}
     setReady(true);
   }, []);
@@ -42,31 +55,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, [cart, ready]);
 
-  const addToCart = (productId: number, size = 42, quantity = 1) => {
-    setCart((current) => {
-      const existing = current.find((item) => item.productId === productId && item.size === size);
-      if (existing) {
-        return current.map((item) =>
-          item === existing ? { ...item, quantity: Math.min(10, item.quantity + quantity) } : item,
-        );
-      }
-      return [...current, { productId, size, quantity }];
-    });
-    setCartOpen(true);
-  };
-
-  const updateCart = (productId: number, size: number, direction: number) => {
-    setCart((current) =>
-      current
-        .map((item) =>
-          item.productId === productId && item.size === size
-            ? { ...item, quantity: Math.min(10, item.quantity + direction) }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
-    );
-  };
-
   // Kosongkan keranjang saat logout (sinyal dikirim dari AccountMenu)
   useEffect(() => {
     const onSessionChange = () => {
@@ -76,6 +64,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     window.addEventListener("rythm:session-change", onSessionChange);
     return () => window.removeEventListener("rythm:session-change", onSessionChange);
   }, []);
+
+  const addToCart = (product: CartProduct, size: number, quantity = 1) => {
+    setCart((current) => {
+      const existing = current.find((i) => i.slug === product.slug && i.size === size);
+      if (existing) {
+        return current.map((i) =>
+          i === existing
+            ? { ...i, ...product, quantity: Math.min(10, i.quantity + quantity) }
+            : i,
+        );
+      }
+      return [...current, { ...product, size, quantity }];
+    });
+    setCartOpen(true);
+  };
+
+  const updateCart = (slug: string, size: number, direction: number) => {
+    setCart((current) =>
+      current
+        .map((i) =>
+          i.slug === slug && i.size === size
+            ? { ...i, quantity: Math.min(10, i.quantity + direction) }
+            : i,
+        )
+        .filter((i) => i.quantity > 0),
+    );
+  };
 
   const clearCart = () => setCart([]);
 

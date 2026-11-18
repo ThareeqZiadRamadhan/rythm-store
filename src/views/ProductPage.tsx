@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Heart, Truck } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import { formatPrice, products, type Product } from "@/lib/data";
+import { formatPrice } from "@/lib/data";
+import type { Product } from "@/lib/catalog-types";
 import { useStore } from "@/lib/store";
 import { useWishlist } from "@/lib/wishlist";
 
@@ -35,32 +34,18 @@ function Accordion({
   );
 }
 
-export default function ProductPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const product = products.find((item) => item.slug === slug);
-
-  if (!product) {
-    return (
-      <main className="grid min-h-[60vh] place-items-center px-5 text-center">
-        <div>
-          <p className="text-6xl font-black">404</p>
-          <h1 className="mt-3 text-2xl font-bold">Sepatunya tidak ditemukan.</h1>
-          <Link
-            href="/shop"
-            className="mt-6 inline-block rounded-full bg-black px-6 py-3 text-white"
-          >
-            Kembali ke koleksi
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
+export default function ProductPage({
+  product,
+  related,
+}: {
+  product: Product;
+  related: Product[];
+}) {
   // key membuat semua state (foto aktif, ukuran) di-reset saat pindah ke produk lain
-  return <ProductDetail key={product.id} product={product} />;
+  return <ProductDetail key={product.id} product={product} related={related} />;
 }
 
-function ProductDetail({ product }: { product: Product }) {
+function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
   const { addToCart } = useStore();
   const { has, toggle } = useWishlist();
   const frameRef = useRef<HTMLDivElement>(null);
@@ -70,31 +55,21 @@ function ProductDetail({ product }: { product: Product }) {
   const [dragging, setDragging] = useState(false);
   const [size, setSize] = useState<number | null>(null);
   const [sizeError, setSizeError] = useState(false);
-  const [stock, setStock] = useState<Record<number, number> | null>(null);
 
-  // Stok asli dari database
-  useEffect(() => {
-    fetch(`/api/products/${product.slug}/stock`, { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => setStock(d.stock ?? {}))
-      .catch(() => setStock({}));
-  }, [product.slug]);
-
-  const stockOf = (s: number) => (stock === null ? Infinity : stock[s] ?? 0);
-  const soldOut = stock !== null && sizes.every((s) => stockOf(s) <= 0);
-
-  const total = product.gallery.length;
+  const gallery = product.gallery.length ? product.gallery : [product.image];
+  const total = gallery.length;
   const liked = has(product.slug);
-  const related = products.filter((item) => item.id !== product.id).slice(0, 4);
   const discount = product.oldPrice
     ? Math.round((1 - product.price / product.oldPrice) * 100)
     : 0;
+
+  const stockOf = (s: number) => product.stock[s] ?? 0;
+  const soldOut = sizes.every((s) => stockOf(s) <= 0);
 
   const goTo = (target: number) => {
     setIndex(Math.max(0, Math.min(total - 1, target)));
   };
 
-  // Geser dengan jari / mouse: foto ikut bergerak saat ditarik
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     startX.current = event.clientX;
@@ -105,7 +80,6 @@ function ProductDetail({ product }: { product: Product }) {
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!dragging) return;
     let delta = event.clientX - startX.current;
-    // Di foto pertama / terakhir, tarikan terasa "berat"
     if ((index === 0 && delta > 0) || (index === total - 1 && delta < 0)) delta *= 0.3;
     setDragX(delta);
   };
@@ -126,17 +100,26 @@ function ProductDetail({ product }: { product: Product }) {
       return;
     }
     if (stockOf(size) <= 0) return;
-    addToCart(product.id, size);
+    addToCart(
+      {
+        slug: product.slug,
+        name: product.name,
+        image: product.image,
+        color: product.color,
+        price: product.price,
+      },
+      size,
+    );
   };
 
   return (
     <main className="bg-white text-[#111]">
       <div className="mx-auto max-w-[1440px] px-5 py-8 md:px-10 lg:py-10">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-14">
-          {/* Galeri: menempel di layar, tinggi dibatasi */}
+          {/* Galeri */}
           <div className="lg:sticky lg:top-24 lg:grid lg:grid-cols-[72px_minmax(0,1fr)] lg:gap-4 lg:self-start">
             <div className="hidden flex-col gap-3 lg:flex">
-              {product.gallery.map((src, i) => (
+              {gallery.map((src, i) => (
                 <button
                   key={`${src}-${i}`}
                   onClick={() => goTo(i)}
@@ -145,17 +128,12 @@ function ProductDetail({ product }: { product: Product }) {
                     index === i ? "border-black" : "border-transparent hover:border-black/40"
                   }`}
                 >
-                  <img
-                    src={src}
-                    alt=""
-                    className="h-full w-full object-cover mix-blend-multiply"
-                  />
+                  <img src={src} alt="" className="h-full w-full object-cover mix-blend-multiply" />
                 </button>
               ))}
             </div>
 
             <div className="relative bg-[#f5f5f5] lg:h-[calc(100vh-8rem)] lg:max-h-[720px] lg:min-h-[480px]">
-              {/* Area geser */}
               <div
                 ref={frameRef}
                 onPointerDown={onPointerDown}
@@ -170,16 +148,11 @@ function ProductDetail({ product }: { product: Product }) {
                   className="flex will-change-transform lg:h-full"
                   style={{
                     transform: `translate3d(calc(${-index * 100}% + ${dragX}px), 0, 0)`,
-                    transition: dragging
-                      ? "none"
-                      : `transform ${SLIDE_MS}ms ${SLIDE_EASING}`,
+                    transition: dragging ? "none" : `transform ${SLIDE_MS}ms ${SLIDE_EASING}`,
                   }}
                 >
-                  {product.gallery.map((src, i) => (
-                    <div
-                      key={`${src}-${i}`}
-                      className="aspect-[4/5] w-full shrink-0 lg:aspect-auto lg:h-full"
-                    >
+                  {gallery.map((src, i) => (
+                    <div key={`${src}-${i}`} className="aspect-[4/5] w-full shrink-0 lg:aspect-auto lg:h-full">
                       <img
                         src={src}
                         alt={`${product.name} foto ${i + 1}`}
@@ -215,7 +188,7 @@ function ProductDetail({ product }: { product: Product }) {
             </div>
           </div>
 
-          {/* Panel info: ikut bergulir saat halaman di-scroll */}
+          {/* Panel info */}
           <div>
             {product.tag && <p className="text-sm font-medium text-[#d33918]">{product.tag}</p>}
             <h1 className="text-2xl font-medium md:text-[28px]">{product.name}</h1>
@@ -225,15 +198,12 @@ function ProductDetail({ product }: { product: Product }) {
               <span className="font-medium">{formatPrice(product.price)}</span>
               {product.oldPrice && (
                 <>
-                  <span className="text-black/45 line-through">
-                    {formatPrice(product.oldPrice)}
-                  </span>
+                  <span className="text-black/45 line-through">{formatPrice(product.oldPrice)}</span>
                   <span className="text-sm font-medium text-[#007d48]">Hemat {discount}%</span>
                 </>
               )}
             </div>
 
-            {/* Warna */}
             <div className="mt-7">
               <div className="size-16 overflow-hidden rounded-md border-2 border-black bg-[#f5f5f5]">
                 <img
@@ -242,10 +212,11 @@ function ProductDetail({ product }: { product: Product }) {
                   className="h-full w-full object-cover mix-blend-multiply"
                 />
               </div>
-              <p className="mt-2 text-sm text-black/60">Warna: {product.colorName}</p>
+              {product.colorName && (
+                <p className="mt-2 text-sm text-black/60">Warna: {product.colorName}</p>
+              )}
             </div>
 
-            {/* Ukuran */}
             <div className="mt-8">
               <div className="flex items-center justify-between">
                 <p className="font-medium">Pilih ukuran</p>
@@ -273,8 +244,8 @@ function ProductDetail({ product }: { product: Product }) {
                         out
                           ? "cursor-not-allowed border-black/10 bg-black/[0.03] text-black/30 line-through"
                           : size === item
-                          ? "border-black ring-1 ring-black"
-                          : "border-black/20 hover:border-black"
+                            ? "border-black ring-1 ring-black"
+                            : "border-black/20 hover:border-black"
                       }`}
                     >
                       EU {item}
@@ -292,7 +263,6 @@ function ProductDetail({ product }: { product: Product }) {
               )}
             </div>
 
-            {/* Tombol */}
             <button
               onClick={handleAdd}
               disabled={soldOut}
@@ -312,7 +282,7 @@ function ProductDetail({ product }: { product: Product }) {
               <Truck size={16} /> Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000
             </p>
 
-            <p className="mt-8 leading-7">{product.description}</p>
+            {product.description && <p className="mt-8 leading-7">{product.description}</p>}
 
             <div className="mt-8 border-t border-black/10">
               <Accordion title="Detail produk" defaultOpen>
@@ -320,7 +290,7 @@ function ProductDetail({ product }: { product: Product }) {
                   {product.features.map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
-                  <li>Warna ditampilkan: {product.colorName}</li>
+                  {product.colorName && <li>Warna ditampilkan: {product.colorName}</li>}
                 </ul>
               </Accordion>
               <Accordion title="Pengiriman & pengembalian">
@@ -338,15 +308,16 @@ function ProductDetail({ product }: { product: Product }) {
         </div>
       </div>
 
-      {/* Rekomendasi */}
-      <section className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 md:px-10">
-        <h2 className="text-2xl font-medium">Kamu mungkin juga suka</h2>
-        <div className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {related.map((item) => (
-            <ProductCard key={item.id} product={item} />
-          ))}
-        </div>
-      </section>
+      {related.length > 0 && (
+        <section className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 md:px-10">
+          <h2 className="text-2xl font-medium">Kamu mungkin juga suka</h2>
+          <div className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {related.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
