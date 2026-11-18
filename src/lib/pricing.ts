@@ -1,8 +1,15 @@
-export const FREE_SHIPPING_MIN = 999000;
-export const SHIPPING_FEE = 25000;
+import { DEFAULT_SETTINGS } from "@/lib/settings-types";
 
-export function shippingFor(subtotal: number) {
-  return subtotal === 0 || subtotal >= FREE_SHIPPING_MIN ? 0 : SHIPPING_FEE;
+export type ShippingRule = { shippingFee: number; freeShippingMin: number };
+
+// Nilai bawaan (dipakai kalau pengaturan toko belum diisi)
+export const FREE_SHIPPING_MIN = DEFAULT_SETTINGS.freeShippingMin;
+export const SHIPPING_FEE = DEFAULT_SETTINGS.shippingFee;
+
+export function shippingFor(subtotal: number, rule: ShippingRule = DEFAULT_SETTINGS) {
+  if (subtotal === 0 || rule.shippingFee === 0) return 0;
+  if (rule.freeShippingMin > 0 && subtotal >= rule.freeShippingMin) return 0;
+  return rule.shippingFee;
 }
 
 export type DiscountRule = {

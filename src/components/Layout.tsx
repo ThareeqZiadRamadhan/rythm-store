@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Menu, Minus, Plus, ShoppingBag, Truck, X } from "lucide-react";
 import { formatPrice } from "@/lib/data";
-import { FREE_SHIPPING_MIN } from "@/lib/pricing";
+import { SettingsProvider } from "@/lib/settings-context";
+import type { PublicSettings } from "@/lib/settings-types";
 import { StoreProvider, useStore } from "@/lib/store";
 import { AccountMenu, MobileAccountLinks, useSession } from "@/components/AccountMenu";
 
@@ -17,7 +18,7 @@ const navItems = [
   ["Sale", "/sale"],
 ];
 
-function Shell({ children }: { children: ReactNode }) {
+function Shell({ children, settings }: { children: ReactNode; settings: PublicSettings }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const { cart, cartOpen, setCartOpen, updateCart } = useStore();
@@ -27,9 +28,11 @@ function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[#f7f7f2] text-[#11120f]">
-      <div className="bg-[#11120f] px-5 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
-        Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000
-      </div>
+      {settings.announcementEnabled && settings.announcementText && (
+        <div className="bg-[#11120f] px-5 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+          {settings.announcementText}
+        </div>
+      )}
       <header className="sticky top-0 z-40 border-b border-black/10 bg-[#f7f7f2]/92 backdrop-blur-xl">
         <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 md:px-10">
           <button
@@ -217,9 +220,12 @@ function Shell({ children }: { children: ReactNode }) {
               <div className="border-t border-black/10 bg-white p-6">
                 <div className="mb-4 flex items-center gap-2 text-xs text-black/50">
                   <Truck size={15} />{" "}
-                  {subtotal >= FREE_SHIPPING_MIN
+                  {settings.shippingFee === 0 ||
+                  (settings.freeShippingMin > 0 && subtotal >= settings.freeShippingMin)
                     ? "Pesananmu bebas ongkir"
-                    : `Tambah ${formatPrice(FREE_SHIPPING_MIN - subtotal)} lagi untuk gratis ongkir`}
+                    : settings.freeShippingMin > 0
+                      ? `Tambah ${formatPrice(settings.freeShippingMin - subtotal)} lagi untuk gratis ongkir`
+                      : `Ongkir ${formatPrice(settings.shippingFee)} per pesanan`}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Subtotal</span>
@@ -241,10 +247,18 @@ function Shell({ children }: { children: ReactNode }) {
   );
 }
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function Layout({
+  children,
+  settings,
+}: {
+  children: ReactNode;
+  settings: PublicSettings;
+}) {
   return (
-    <StoreProvider>
-      <Shell>{children}</Shell>
-    </StoreProvider>
+    <SettingsProvider value={settings}>
+      <StoreProvider>
+        <Shell settings={settings}>{children}</Shell>
+      </StoreProvider>
+    </SettingsProvider>
   );
 }

@@ -6,7 +6,7 @@ import { useState, type ReactNode } from "react";
 import { Check, Loader2, MapPin, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/data";
 import { useStore } from "@/lib/store";
-import { FREE_SHIPPING_MIN, calcDiscount, shippingFor } from "@/lib/pricing";
+import { calcDiscount, shippingFor, type ShippingRule } from "@/lib/pricing";
 import type { AddressDTO } from "@/lib/address";
 import type { VoucherDTO } from "@/lib/vouchers";
 
@@ -89,10 +89,12 @@ export default function CheckoutView({
   addresses,
   vouchers,
   catalog,
+  shippingRule,
 }: {
   addresses: AddressDTO[];
   vouchers: VoucherDTO[];
   catalog: CatalogInfo;
+  shippingRule: ShippingRule;
 }) {
   const router = useRouter();
   const { cart, ready, clearCart } = useStore();
@@ -132,7 +134,7 @@ export default function CheckoutView({
   });
 
   const subtotal = lines.reduce((s, l) => s + l.product.price * l.quantity, 0);
-  const shipping = shippingFor(subtotal);
+  const shipping = shippingFor(subtotal, shippingRule);
   const selected = vouchers.find((v) => v.code === voucherCode);
   const applied = selected && subtotal >= selected.minSpend ? selected : null;
   const discount = applied ? calcDiscount(applied, subtotal) : 0;
@@ -341,7 +343,9 @@ export default function CheckoutView({
           </dl>
           {shipping > 0 && (
             <p className="mt-2 text-xs text-black/45">
-              Gratis ongkir untuk belanja di atas {formatPrice(FREE_SHIPPING_MIN)}.
+              {shippingRule.freeShippingMin > 0
+                ? `Gratis ongkir untuk belanja di atas ${formatPrice(shippingRule.freeShippingMin)}.`
+                : "Ongkir berlaku untuk semua pesanan."}
             </p>
           )}
 

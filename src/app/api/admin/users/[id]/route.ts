@@ -21,17 +21,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "ID user tidak valid." }, { status: 400 });
   }
   if (id === g.admin.id) {
-    return NextResponse.json({ error: "Kamu tidak bisa mengubah role sendiri." }, { status: 400 });
+    return NextResponse.json({ error: "Kamu tidak bisa mengubah akunmu sendiri di sini." }, { status: 400 });
   }
 
-  const body = await req.json().catch(() => ({}));
+  const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+  const target = await User.findById(id).select("email role isBlocked").lean();
+  if (!target) return NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 });
+
+  // Blokir / aktifkan akun
+  if ("isBlocked" in body) {
+    const blocked = Boolean(body.isBlocked);
+    if (Boolean(target.isBlocked) !== blocked) {
+      await User.updateOne({ _id: id }, { $set: { isBlocked: blocked } });
+      await logActivity(g.admin, blocked ? "user.block" : "user.unblock", target.email);
+    }
+    return NextResponse.json({ isBlocked: blocked });
+  }
+
+  // Ubah role
   const role = String(body.role ?? "");
   if (!(ROLES as readonly string[]).includes(role)) {
     return NextResponse.json({ error: "Role tidak valid." }, { status: 400 });
   }
-
-  const target = await User.findById(id).select("email role").lean();
-  if (!target) return NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 });
   if (target.role === role) return NextResponse.json({ role });
 
   await User.updateOne({ _id: id }, { $set: { role } });
@@ -41,6 +52,5 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     target.email,
     `${ROLE_LABEL[target.role ?? "USER"]} → ${ROLE_LABEL[role]}`
   );
-
   return NextResponse.json({ role });
 }

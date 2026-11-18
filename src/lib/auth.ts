@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { connectDB } from "@/lib/mongodb";
+import User from "@/models/User";
 
 const COOKIE_NAME = "rythm_session";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 hari
@@ -51,14 +53,22 @@ export async function getSession(): Promise<SessionPayload | null> {
   const token = store.get(COOKIE_NAME)?.value;
   if (!token) return null;
 
+  let sub: string;
   try {
     const { payload } = await jwtVerify(token, getSecret());
     if (!payload.sub) return null;
-    return {
-      sub: payload.sub,
-      name: String(payload.name ?? ""),
-      role: (payload.role as Role) ?? "USER",
-    };
+    sub = payload.sub;
+  } catch {
+    return null;
+  }
+
+  // Cek ke database: akun yang dihapus atau diblokir langsung dianggap keluar,
+  // dan nama/role selalu yang terbaru.
+  try {
+    await connectDB();
+    const user = await User.findById(sub).select("name role isBlocked").lean();
+    if (!user || user.isBlocked) return null;
+    return { sub, name: user.name, role: (user.role as Role) ?? "USER" };
   } catch {
     return null;
   }

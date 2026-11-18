@@ -3,6 +3,7 @@ import type { Types } from "mongoose";
 import { getSession } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import { calcDiscount, shippingFor } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 import Order, { PAYMENT_METHODS } from "@/models/Order";
 import Product from "@/models/Product";
 import User from "@/models/User";
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
     }
 
     const subtotal = lines.reduce((s, l) => s + l.price * l.quantity, 0);
-    const shippingFee = shippingFor(subtotal);
+    const shippingFee = shippingFor(subtotal, await getSettings());
 
     let discount = 0;
     let voucherId: Types.ObjectId | null = null;

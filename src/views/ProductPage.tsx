@@ -7,6 +7,8 @@ import { formatPrice } from "@/lib/data";
 import type { Product } from "@/lib/catalog-types";
 import { useStore } from "@/lib/store";
 import { useWishlist } from "@/lib/wishlist";
+import { useSettings } from "@/lib/settings-context";
+import { freeShippingText } from "@/lib/settings-types";
 
 const sizes = [38, 39, 40, 41, 42, 43, 44, 45];
 
@@ -48,6 +50,7 @@ export default function ProductPage({
 function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
   const { addToCart } = useStore();
   const { has, toggle } = useWishlist();
+  const settings = useSettings();
   const frameRef = useRef<HTMLDivElement>(null);
   const startX = useRef(0);
   const [index, setIndex] = useState(0);
@@ -279,7 +282,7 @@ function ProductDetail({ product, related }: { product: Product; related: Produc
             </button>
 
             <p className="mt-5 flex items-center gap-2 text-sm text-black/60">
-              <Truck size={16} /> Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000
+              <Truck size={16} /> {freeShippingText(settings)}
             </p>
 
             {product.description && <p className="mt-8 leading-7">{product.description}</p>}
@@ -295,7 +298,7 @@ function ProductDetail({ product, related }: { product: Product; related: Produc
               </Accordion>
               <Accordion title="Pengiriman & pengembalian">
                 <p>
-                  Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000. Estimasi
+                  {freeShippingText(settings)}. Estimasi
                   pengiriman 2–5 hari kerja. Pengembalian dapat diajukan maksimal 14 hari setelah
                   barang diterima, selama produk belum dipakai.
                 </p>

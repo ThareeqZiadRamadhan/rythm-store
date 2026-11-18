@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, History, LayoutDashboard, Package, Tag, Ticket, Users } from "lucide-react";
+import { ArrowLeft, History, LayoutDashboard, Package, Settings, Tag, Ticket, Users } from "lucide-react";
 
 export default function AdminNav({ role }: { role: "ADMIN" | "SUPERADMIN" }) {
   const pathname = usePathname();
@@ -17,6 +17,7 @@ export default function AdminNav({ role }: { role: "ADMIN" | "SUPERADMIN" }) {
     { href: "/admin/vouchers", label: "Voucher", icon: Ticket },
     { href: "/admin/users", label: "Pengguna", icon: Users },
     { href: "/admin/activity", label: "Log aktivitas", icon: History },
+    { href: "/admin/settings", label: "Pengaturan", icon: Settings },
   ];
 
   const renderLink = ({ href, label, icon: Icon }: (typeof items)[number]) => {

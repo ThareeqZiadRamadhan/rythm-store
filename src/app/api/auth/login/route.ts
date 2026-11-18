@@ -25,6 +25,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
     }
 
+    if (user.isBlocked) {
+      return NextResponse.json(
+        { error: "Akun kamu dinonaktifkan. Hubungi admin RYTHM untuk informasi lebih lanjut." },
+        { status: 403 }
+      );
+    }
+
     await createSession({
       sub: String(user._id),
       name: user.name,

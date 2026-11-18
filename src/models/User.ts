@@ -39,6 +39,7 @@ const userSchema = new Schema(
     // Hash bcrypt, tidak pernah dikirim ke client dan tidak ikut query default.
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLES, default: "USER" },
+    isBlocked: { type: Boolean, default: false },
     addresses: { type: [addressSchema], default: [] },
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     vouchers: { type: [userVoucherSchema], default: [] },

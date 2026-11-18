@@ -7,6 +7,9 @@ export const ACTIVITY_LABEL = {
   "voucher.create": "Tambah voucher",
   "voucher.update": "Edit voucher",
   "voucher.delete": "Hapus voucher",
+  "user.block": "Blokir akun",
+  "user.unblock": "Aktifkan akun",
+  "settings.update": "Ubah pengaturan toko",
 } as const;
 
 export type ActivityAction = keyof typeof ACTIVITY_LABEL;
@@ -16,4 +19,5 @@ export const ACTIVITY_GROUP: Record<string, string> = {
   order: "Pesanan",
   user: "Pengguna",
   voucher: "Voucher",
+  settings: "Pengaturan",
 };

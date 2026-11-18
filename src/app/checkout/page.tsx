@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import { serializeAddresses } from "@/lib/address";
 import { getVoucherLists } from "@/lib/vouchers";
 import { getProducts } from "@/lib/catalog";
+import { getSettings } from "@/lib/settings";
 import User from "@/models/User";
 import CheckoutView from "@/components/CheckoutView";
 
@@ -33,6 +34,7 @@ export default async function CheckoutPage() {
       addresses={serializeAddresses(user.addresses)}
       vouchers={claimed.filter((v) => v.status === "ACTIVE")}
       catalog={catalog}
+      shippingRule={await getSettings()}
     />
   );
 }

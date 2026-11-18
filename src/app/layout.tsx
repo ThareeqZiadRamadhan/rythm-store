@@ -1,3 +1,4 @@
+import { getSettings } from "@/lib/settings";
 import type { Metadata } from "next";
 import "./globals.css";
 import Layout from "@/components/Layout";
@@ -10,11 +11,12 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSettings();
   return (
     <html lang="id">
       <body>
-        <Layout>{children}</Layout>
+        <Layout settings={settings}>{children}</Layout>
       </body>
     </html>
   );
