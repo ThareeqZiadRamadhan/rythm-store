@@ -1,0 +1,352 @@
+"use client";
+
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { ChevronDown, ChevronLeft, ChevronRight, Heart, Truck } from "lucide-react";
+import ProductCard from "@/components/ProductCard";
+import { formatPrice, products, type Product } from "@/lib/data";
+import { useStore } from "@/lib/store";
+import { useWishlist } from "@/lib/wishlist";
+
+const sizes = [38, 39, 40, 41, 42, 43, 44, 45];
+
+// Durasi geser foto (milidetik) dan jenis gerakan. "linear" = kecepatan konstan.
+const SLIDE_MS = 600;
+const SLIDE_EASING = "linear";
+
+function Accordion({
+  title,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details open={defaultOpen} className="group border-b border-black/10">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-5 text-lg font-medium [&::-webkit-details-marker]:hidden">
+        {title}
+        <ChevronDown size={22} className="transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="pb-6 text-[15px] leading-7 text-black/70">{children}</div>
+    </details>
+  );
+}
+
+export default function ProductPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const product = products.find((item) => item.slug === slug);
+
+  if (!product) {
+    return (
+      <main className="grid min-h-[60vh] place-items-center px-5 text-center">
+        <div>
+          <p className="text-6xl font-black">404</p>
+          <h1 className="mt-3 text-2xl font-bold">Sepatunya tidak ditemukan.</h1>
+          <Link
+            href="/shop"
+            className="mt-6 inline-block rounded-full bg-black px-6 py-3 text-white"
+          >
+            Kembali ke koleksi
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // key membuat semua state (foto aktif, ukuran) di-reset saat pindah ke produk lain
+  return <ProductDetail key={product.id} product={product} />;
+}
+
+function ProductDetail({ product }: { product: Product }) {
+  const { addToCart } = useStore();
+  const { has, toggle } = useWishlist();
+  const frameRef = useRef<HTMLDivElement>(null);
+  const startX = useRef(0);
+  const [index, setIndex] = useState(0);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [size, setSize] = useState<number | null>(null);
+  const [sizeError, setSizeError] = useState(false);
+  const [stock, setStock] = useState<Record<number, number> | null>(null);
+
+  // Stok asli dari database
+  useEffect(() => {
+    fetch(`/api/products/${product.slug}/stock`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setStock(d.stock ?? {}))
+      .catch(() => setStock({}));
+  }, [product.slug]);
+
+  const stockOf = (s: number) => (stock === null ? Infinity : stock[s] ?? 0);
+  const soldOut = stock !== null && sizes.every((s) => stockOf(s) <= 0);
+
+  const total = product.gallery.length;
+  const liked = has(product.slug);
+  const related = products.filter((item) => item.id !== product.id).slice(0, 4);
+  const discount = product.oldPrice
+    ? Math.round((1 - product.price / product.oldPrice) * 100)
+    : 0;
+
+  const goTo = (target: number) => {
+    setIndex(Math.max(0, Math.min(total - 1, target)));
+  };
+
+  // Geser dengan jari / mouse: foto ikut bergerak saat ditarik
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    startX.current = event.clientX;
+    setDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+    let delta = event.clientX - startX.current;
+    // Di foto pertama / terakhir, tarikan terasa "berat"
+    if ((index === 0 && delta > 0) || (index === total - 1 && delta < 0)) delta *= 0.3;
+    setDragX(delta);
+  };
+
+  const onPointerEnd = () => {
+    if (!dragging) return;
+    const width = frameRef.current?.clientWidth ?? 1;
+    const threshold = width * 0.15;
+    if (dragX < -threshold) goTo(index + 1);
+    else if (dragX > threshold) goTo(index - 1);
+    setDragging(false);
+    setDragX(0);
+  };
+
+  const handleAdd = () => {
+    if (!size) {
+      setSizeError(true);
+      return;
+    }
+    if (stockOf(size) <= 0) return;
+    addToCart(product.id, size);
+  };
+
+  return (
+    <main className="bg-white text-[#111]">
+      <div className="mx-auto max-w-[1440px] px-5 py-8 md:px-10 lg:py-10">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-14">
+          {/* Galeri: menempel di layar, tinggi dibatasi */}
+          <div className="lg:sticky lg:top-24 lg:grid lg:grid-cols-[72px_minmax(0,1fr)] lg:gap-4 lg:self-start">
+            <div className="hidden flex-col gap-3 lg:flex">
+              {product.gallery.map((src, i) => (
+                <button
+                  key={`${src}-${i}`}
+                  onClick={() => goTo(i)}
+                  aria-label={`Lihat foto ${i + 1}`}
+                  className={`size-[72px] overflow-hidden rounded-md border-2 bg-[#f5f5f5] transition-colors ${
+                    index === i ? "border-black" : "border-transparent hover:border-black/40"
+                  }`}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    className="h-full w-full object-cover mix-blend-multiply"
+                  />
+                </button>
+              ))}
+            </div>
+
+            <div className="relative bg-[#f5f5f5] lg:h-[calc(100vh-8rem)] lg:max-h-[720px] lg:min-h-[480px]">
+              {/* Area geser */}
+              <div
+                ref={frameRef}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerEnd}
+                onPointerCancel={onPointerEnd}
+                className={`touch-pan-y select-none overflow-hidden lg:h-full ${
+                  dragging ? "cursor-grabbing" : "cursor-grab"
+                }`}
+              >
+                <div
+                  className="flex will-change-transform lg:h-full"
+                  style={{
+                    transform: `translate3d(calc(${-index * 100}% + ${dragX}px), 0, 0)`,
+                    transition: dragging
+                      ? "none"
+                      : `transform ${SLIDE_MS}ms ${SLIDE_EASING}`,
+                  }}
+                >
+                  {product.gallery.map((src, i) => (
+                    <div
+                      key={`${src}-${i}`}
+                      className="aspect-[4/5] w-full shrink-0 lg:aspect-auto lg:h-full"
+                    >
+                      <img
+                        src={src}
+                        alt={`${product.name} foto ${i + 1}`}
+                        draggable={false}
+                        className="pointer-events-none h-full w-full object-cover mix-blend-multiply"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <span className="absolute bottom-4 left-4 rounded-full bg-white px-3 py-1.5 text-xs font-medium">
+                {index + 1} / {total}
+              </span>
+              <div className="absolute bottom-4 right-4 flex gap-2">
+                <button
+                  onClick={() => goTo(index - 1)}
+                  disabled={index === 0}
+                  aria-label="Foto sebelumnya"
+                  className="grid size-11 place-items-center rounded-full bg-white shadow transition hover:bg-[#e5e5e5] disabled:pointer-events-none disabled:opacity-40"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => goTo(index + 1)}
+                  disabled={index === total - 1}
+                  aria-label="Foto berikutnya"
+                  className="grid size-11 place-items-center rounded-full bg-white shadow transition hover:bg-[#e5e5e5] disabled:pointer-events-none disabled:opacity-40"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Panel info: ikut bergulir saat halaman di-scroll */}
+          <div>
+            {product.tag && <p className="text-sm font-medium text-[#d33918]">{product.tag}</p>}
+            <h1 className="text-2xl font-medium md:text-[28px]">{product.name}</h1>
+            <p className="mt-1">Sepatu {product.category}</p>
+
+            <div className="mt-4 flex items-baseline gap-3">
+              <span className="font-medium">{formatPrice(product.price)}</span>
+              {product.oldPrice && (
+                <>
+                  <span className="text-black/45 line-through">
+                    {formatPrice(product.oldPrice)}
+                  </span>
+                  <span className="text-sm font-medium text-[#007d48]">Hemat {discount}%</span>
+                </>
+              )}
+            </div>
+
+            {/* Warna */}
+            <div className="mt-7">
+              <div className="size-16 overflow-hidden rounded-md border-2 border-black bg-[#f5f5f5]">
+                <img
+                  src={product.image}
+                  alt={product.colorName}
+                  className="h-full w-full object-cover mix-blend-multiply"
+                />
+              </div>
+              <p className="mt-2 text-sm text-black/60">Warna: {product.colorName}</p>
+            </div>
+
+            {/* Ukuran */}
+            <div className="mt-8">
+              <div className="flex items-center justify-between">
+                <p className="font-medium">Pilih ukuran</p>
+                <button type="button" className="text-sm text-black/55 hover:text-black">
+                  Panduan ukuran
+                </button>
+              </div>
+              <div
+                className={`mt-3 grid grid-cols-3 gap-2 rounded-lg ${
+                  sizeError ? "p-1 ring-1 ring-[#d33918]" : ""
+                }`}
+              >
+                {sizes.map((item) => {
+                  const out = stockOf(item) <= 0;
+                  return (
+                    <button
+                      key={item}
+                      disabled={out}
+                      aria-label={out ? `EU ${item}, stok habis` : `EU ${item}`}
+                      onClick={() => {
+                        setSize(item);
+                        setSizeError(false);
+                      }}
+                      className={`h-12 rounded-md border transition-colors ${
+                        out
+                          ? "cursor-not-allowed border-black/10 bg-black/[0.03] text-black/30 line-through"
+                          : size === item
+                          ? "border-black ring-1 ring-black"
+                          : "border-black/20 hover:border-black"
+                      }`}
+                    >
+                      EU {item}
+                    </button>
+                  );
+                })}
+              </div>
+              {sizeError && (
+                <p className="mt-2 text-sm text-[#d33918]">Pilih ukuran terlebih dahulu.</p>
+              )}
+              {size !== null && stockOf(size) > 0 && stockOf(size) <= 3 && (
+                <p className="mt-2 text-sm font-medium text-[#d33918]">
+                  Sisa {stockOf(size)} pasang untuk EU {size}.
+                </p>
+              )}
+            </div>
+
+            {/* Tombol */}
+            <button
+              onClick={handleAdd}
+              disabled={soldOut}
+              className="mt-8 w-full rounded-full bg-[#111] px-6 py-5 text-base font-medium text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:bg-black/20"
+            >
+              {soldOut ? "Stok habis" : "Tambah ke keranjang"}
+            </button>
+            <button
+              onClick={() => toggle(product.slug)}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-black/25 px-6 py-5 text-base font-medium transition-colors hover:border-black"
+            >
+              {liked ? "Tersimpan di wishlist" : "Favorit"}
+              <Heart size={20} className={liked ? "fill-[#e2533f] text-[#e2533f]" : ""} />
+            </button>
+
+            <p className="mt-5 flex items-center gap-2 text-sm text-black/60">
+              <Truck size={16} /> Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000
+            </p>
+
+            <p className="mt-8 leading-7">{product.description}</p>
+
+            <div className="mt-8 border-t border-black/10">
+              <Accordion title="Detail produk" defaultOpen>
+                <ul className="list-disc space-y-1 pl-5">
+                  {product.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                  <li>Warna ditampilkan: {product.colorName}</li>
+                </ul>
+              </Accordion>
+              <Accordion title="Pengiriman & pengembalian">
+                <p>
+                  Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000. Estimasi
+                  pengiriman 2–5 hari kerja. Pengembalian dapat diajukan maksimal 14 hari setelah
+                  barang diterima, selama produk belum dipakai.
+                </p>
+              </Accordion>
+              <Accordion title="Ulasan (0)">
+                <p>Belum ada ulasan untuk produk ini.</p>
+              </Accordion>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Rekomendasi */}
+      <section className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 md:px-10">
+        <h2 className="text-2xl font-medium">Kamu mungkin juga suka</h2>
+        <div className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          {related.map((item) => (
+            <ProductCard key={item.id} product={item} />
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}

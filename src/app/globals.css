@@ -1,26 +1,206 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: "DM Sans", sans-serif;
+  --font-serif: "Instrument Serif", serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    font-family: "DM Sans", sans-serif;
+    background: #f7f7f2;
+    color: #11120f;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  a {
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid #789600;
+    outline-offset: 3px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .hide-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.product-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+.glitch-stage {
+  filter: drop-shadow(0 32px 46px rgba(0, 0, 0, 0.65));
+  animation: shoe-float 5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.glitch-main {
+  animation: main-glitch 6s steps(1, end) infinite;
+}
+
+.glitch-copy {
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, clip-path, opacity;
+}
+
+.glitch-copy-cyan {
+  filter: sepia(1) saturate(8) hue-rotate(130deg);
+  animation: glitch-cyan 4.7s steps(1, end) infinite;
+}
+
+.glitch-copy-lime {
+  filter: sepia(1) saturate(9) hue-rotate(20deg);
+  animation: glitch-lime 4.7s steps(1, end) infinite reverse;
+}
+
+.glitch-scan {
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 48%,
+    rgba(199, 234, 76, 0.15) 49%,
+    transparent 51%,
+    transparent 100%
+  );
+  background-size: 100% 14px;
+  opacity: 0.25;
+  mask-image: linear-gradient(to right, transparent 4%, black 25%, black 75%, transparent 96%);
+}
+
+.glitch-orbit {
+  animation: orbit-spin 25s linear infinite;
+}
+
+@keyframes shoe-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-1.5deg);
+  }
+}
+
+@keyframes main-glitch {
+  0%,
+  91%,
+  94%,
+  100% {
+    transform: translate(0);
+    filter: none;
+  }
+  92% {
+    transform: translate(5px, -2px) skewX(-1deg);
+    filter: contrast(1.2);
+  }
+  93% {
+    transform: translate(-3px, 1px);
+  }
+}
+
+@keyframes glitch-cyan {
+  0%,
+  86%,
+  90%,
+  100% {
+    opacity: 0;
+    transform: translate(0);
+    clip-path: inset(0 0 100% 0);
+  }
+  87% {
+    opacity: 0.42;
+    transform: translate(11px, -3px);
+    clip-path: inset(18% 0 57% 0);
+  }
+  88% {
+    opacity: 0.3;
+    transform: translate(-8px, 4px);
+    clip-path: inset(62% 0 16% 0);
+  }
+  89% {
+    opacity: 0.45;
+    transform: translate(6px, 0);
+    clip-path: inset(42% 0 44% 0);
+  }
+}
+
+@keyframes glitch-lime {
+  0%,
+  84%,
+  89%,
+  100% {
+    opacity: 0;
+    transform: translate(0);
+    clip-path: inset(100% 0 0 0);
+  }
+  85% {
+    opacity: 0.36;
+    transform: translate(-12px, 2px);
+    clip-path: inset(72% 0 9% 0);
+  }
+  86% {
+    opacity: 0.28;
+    transform: translate(7px, -2px);
+    clip-path: inset(10% 0 70% 0);
+  }
+  88% {
+    opacity: 0.4;
+    transform: translate(-5px, 1px);
+    clip-path: inset(48% 0 32% 0);
+  }
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-stage,
+  .glitch-main,
+  .glitch-copy,
+  .glitch-orbit {
+    animation: none;
+  }
+}
+
+@theme {
+  --font-display: "Anton", "DM Sans", sans-serif;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+.fade-up { animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.fade-up-2 { animation-delay: 0.12s; }
+.fade-up-3 { animation-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up { animation: none; }
 }
