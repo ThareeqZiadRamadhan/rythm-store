@@ -9,6 +9,7 @@ import { SettingsProvider } from "@/lib/settings-context";
 import type { PublicSettings } from "@/lib/settings-types";
 import { StoreProvider, useStore } from "@/lib/store";
 import { AccountMenu, MobileAccountLinks, useSession } from "@/components/AccountMenu";
+import SearchButton from "@/components/SearchButton";
 
 const navItems = [
   ["Koleksi", "/shop"],
@@ -63,6 +64,7 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
           </nav>
 
           <div className="flex items-center gap-1 sm:gap-2">
+            <SearchButton />
             <AccountMenu user={user} ready={ready} onLogout={logout} />
 
             <button

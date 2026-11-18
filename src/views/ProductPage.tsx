@@ -9,6 +9,7 @@ import { useStore } from "@/lib/store";
 import { useWishlist } from "@/lib/wishlist";
 import { useSettings } from "@/lib/settings-context";
 import { freeShippingText } from "@/lib/settings-types";
+import ProductReviews, { Stars } from "@/components/ProductReviews";
 
 const sizes = [38, 39, 40, 41, 42, 43, 44, 45];
 
@@ -36,18 +37,30 @@ function Accordion({
   );
 }
 
+type Rating = { average: number; count: number };
+
 export default function ProductPage({
   product,
   related,
+  rating = { average: 0, count: 0 },
 }: {
   product: Product;
   related: Product[];
+  rating?: Rating;
 }) {
   // key membuat semua state (foto aktif, ukuran) di-reset saat pindah ke produk lain
-  return <ProductDetail key={product.id} product={product} related={related} />;
+  return <ProductDetail key={product.id} product={product} related={related} rating={rating} />;
 }
 
-function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
+function ProductDetail({
+  product,
+  related,
+  rating,
+}: {
+  product: Product;
+  related: Product[];
+  rating: Rating;
+}) {
   const { addToCart } = useStore();
   const { has, toggle } = useWishlist();
   const settings = useSettings();
@@ -196,6 +209,20 @@ function ProductDetail({ product, related }: { product: Product; related: Produc
             {product.tag && <p className="text-sm font-medium text-[#d33918]">{product.tag}</p>}
             <h1 className="text-2xl font-medium md:text-[28px]">{product.name}</h1>
             <p className="mt-1">Sepatu {product.category}</p>
+            {rating.count > 0 && (
+              <a
+                href="#ulasan"
+                onClick={() => {
+                  const d = document.getElementById("ulasan") as HTMLDetailsElement | null;
+                  if (d) d.open = true;
+                }}
+                className="mt-2 inline-flex items-center gap-2 text-sm hover:underline"
+              >
+                <Stars value={rating.average} size={14} />
+                <span className="font-medium">{rating.average.toFixed(1)}</span>
+                <span className="text-black/50">· {rating.count} ulasan</span>
+              </a>
+            )}
 
             <div className="mt-4 flex items-baseline gap-3">
               <span className="font-medium">{formatPrice(product.price)}</span>
@@ -303,9 +330,7 @@ function ProductDetail({ product, related }: { product: Product; related: Produc
                   barang diterima, selama produk belum dipakai.
                 </p>
               </Accordion>
-              <Accordion title="Ulasan (0)">
-                <p>Belum ada ulasan untuk produk ini.</p>
-              </Accordion>
+              <ProductReviews slug={product.slug} />
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import Product from "../src/models/Product";
 import Voucher from "../src/models/Voucher";
 import User from "../src/models/User";
 import Order from "../src/models/Order";
+import Review from "../src/models/Review";
 
 const SIZES = [38, 39, 40, 41, 42, 43, 44, 45];
 const DAY = 24 * 60 * 60 * 1000;
@@ -121,7 +122,7 @@ async function seedAccounts() {
 }
 
 async function ensureCollections() {
-  for (const m of [User, Product, Voucher, Order]) {
+  for (const m of [User, Product, Voucher, Order, Review]) {
     await m.createCollection().catch(() => {});
     await m.syncIndexes();
   }

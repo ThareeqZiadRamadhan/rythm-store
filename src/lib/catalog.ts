@@ -57,3 +57,28 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const doc = await ProductModel.findOne({ slug, isActive: true }).lean();
   return doc ? toProduct(doc as unknown as Raw) : null;
 }
+
+const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Cari produk aktif berdasarkan nama, kategori, gender, warna, label, atau deskripsi. */
+export async function searchProducts(query: string, limit = 100): Promise<Product[]> {
+  const term = query.trim().slice(0, 60);
+  if (!term) return [];
+  await connectDB();
+  const re = new RegExp(escapeRegex(term), "i");
+  const docs = await ProductModel.find({
+    isActive: true,
+    $or: [
+      { name: re },
+      { category: re },
+      { gender: re },
+      { colorName: re },
+      { tag: re },
+      { description: re },
+    ],
+  })
+    .sort({ createdAt: 1, _id: 1 })
+    .limit(limit)
+    .lean();
+  return docs.map((d) => toProduct(d as unknown as Raw));
+}
