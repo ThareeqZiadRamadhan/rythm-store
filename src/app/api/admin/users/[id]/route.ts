@@ -2,55 +2,114 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { adminApi } from "@/lib/admin";
 import { logActivity } from "@/lib/activity";
-import User, { ROLES } from "@/models/User";
+import { hashPassword } from "@/lib/auth";
+import { parseAdminInput } from "@/lib/userInput";
+import User from "@/models/User";
+import Review from "@/models/Review";
 
 export const dynamic = "force-dynamic";
 
-const ROLE_LABEL: Record<string, string> = {
-  USER: "Pelanggan",
-  ADMIN: "Admin",
-  SUPERADMIN: "Superadmin",
-};
+type Ctx = { params: Promise<{ id: string }> };
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+const onlyAdmin = () =>
+  NextResponse.json({ error: "Hanya akun admin yang bisa diubah atau dihapus di sini." }, { status: 403 });
+
+/** Cek akses superadmin dan ID target. Akun sendiri tidak bisa diubah/dihapus dari panel ini. */
+async function guard(params: Ctx["params"]) {
   const g = await adminApi({ superadmin: true });
-  if (g.error) return g.error;
+  if (g.error) return { error: g.error };
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID user tidak valid." }, { status: 400 });
+    return { error: NextResponse.json({ error: "ID user tidak valid." }, { status: 400 }) };
   }
   if (id === g.admin.id) {
-    return NextResponse.json({ error: "Kamu tidak bisa mengubah akunmu sendiri di sini." }, { status: 400 });
+    return {
+      error: NextResponse.json(
+        { error: "Kamu tidak bisa mengubah akunmu sendiri di sini. Gunakan halaman Akun." },
+        { status: 400 }
+      ),
+    };
   }
 
-  const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-  const target = await User.findById(id).select("email role isBlocked").lean();
-  if (!target) return NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 });
+  const target = await User.findById(id).select("name email phone role isBlocked").lean();
+  if (!target) return { error: NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 }) };
 
-  // Blokir / aktifkan akun
+  return { admin: g.admin, id, target };
+}
+
+export async function PATCH(req: Request, { params }: Ctx) {
+  const g = await guard(params);
+  if (g.error) return g.error;
+  const { admin, id, target } = g;
+
+  const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+
+  // Blokir / aktifkan akun (pelanggan atau admin, tidak untuk superadmin)
   if ("isBlocked" in body) {
+    if (target.role === "SUPERADMIN") {
+      return NextResponse.json({ error: "Akun superadmin tidak bisa diblokir." }, { status: 403 });
+    }
     const blocked = Boolean(body.isBlocked);
     if (Boolean(target.isBlocked) !== blocked) {
       await User.updateOne({ _id: id }, { $set: { isBlocked: blocked } });
-      await logActivity(g.admin, blocked ? "user.block" : "user.unblock", target.email);
+      await logActivity(admin, blocked ? "user.block" : "user.unblock", target.email);
     }
     return NextResponse.json({ isBlocked: blocked });
   }
 
-  // Ubah role
-  const role = String(body.role ?? "");
-  if (!(ROLES as readonly string[]).includes(role)) {
-    return NextResponse.json({ error: "Role tidak valid." }, { status: 400 });
-  }
-  if (target.role === role) return NextResponse.json({ role });
+  // Edit data akun admin (nama, email, HP, reset password). Role tidak bisa diubah.
+  if (target.role !== "ADMIN") return onlyAdmin();
 
-  await User.updateOne({ _id: id }, { $set: { role } });
-  await logActivity(
-    g.admin,
-    "user.role",
-    target.email,
-    `${ROLE_LABEL[target.role ?? "USER"]} → ${ROLE_LABEL[role]}`
+  const parsed = parseAdminInput(body, { requirePassword: false });
+  if (!parsed.data) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { name, email, phone, password } = parsed.data;
+
+  if (email !== target.email && (await User.exists({ email, _id: { $ne: id } }))) {
+    return NextResponse.json({ error: "Email sudah dipakai akun lain." }, { status: 409 });
+  }
+
+  const changes: string[] = [];
+  if (name !== target.name) changes.push("nama");
+  if (email !== target.email) changes.push(`email ${target.email} → ${email}`);
+  if (phone !== (target.phone ?? "")) changes.push("nomor HP");
+  if (password) changes.push("reset password");
+  if (changes.length === 0) return NextResponse.json({ ok: true });
+
+  await User.updateOne(
+    { _id: id },
+    {
+      $set: {
+        name,
+        email,
+        phone,
+        ...(password ? { passwordHash: await hashPassword(password) } : {}),
+      },
+    }
   );
-  return NextResponse.json({ role });
+  // Nama di ulasan ikut diperbarui supaya konsisten.
+  if (name !== target.name) await Review.updateMany({ user: id }, { $set: { userName: name } });
+
+  await logActivity(admin, "user.update", email, changes.join(", "));
+  return NextResponse.json({ ok: true });
+}
+
+/** Hapus akun admin. Ulasan yang pernah ditulis akun ini ikut dihapus. */
+export async function DELETE(_req: Request, { params }: Ctx) {
+  const g = await guard(params);
+  if (g.error) return g.error;
+  const { admin, id, target } = g;
+
+  if (target.role !== "ADMIN") return onlyAdmin();
+
+  await User.deleteOne({ _id: id });
+  const { deletedCount } = await Review.deleteMany({ user: id });
+
+  await logActivity(
+    admin,
+    "user.delete",
+    target.email,
+    `${target.name}${deletedCount ? ` · ${deletedCount} ulasan ikut dihapus` : ""}`
+  );
+  return NextResponse.json({ ok: true });
 }
