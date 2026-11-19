@@ -3,10 +3,8 @@ import mongoose from "mongoose";
 import { adminApi } from "@/lib/admin";
 import { logActivity } from "@/lib/activity";
 import { NEXT_STATUS, STATUS_LABEL, type OrderStatus } from "@/lib/orderStatus";
+import { restoreCancelledOrder } from "@/lib/orderCancel";
 import Order from "@/models/Order";
-import Product from "@/models/Product";
-import User from "@/models/User";
-import Voucher from "@/models/Voucher";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +37,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     const updated = await Order.findOneAndUpdate(
       { _id: id, status: current },
-      { $set: { status: next } },
+      { $set: { status: next, ...(next === "CANCELLED" ? { cancelledBy: "ADMIN" } : {}) } },
       { new: true }
     );
     if (!updated) {
@@ -49,26 +47,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       );
     }
 
-    let note = "";
-    if (next === "CANCELLED") {
-      for (const it of order.items) {
-        await Product.updateOne(
-          { _id: it.product, "variants.size": it.size },
-          { $inc: { "variants.$.stock": it.quantity } }
-        );
-      }
-      note = "; stok dikembalikan";
-      if (order.voucherCode) {
-        const v = await Voucher.findOne({ code: order.voucherCode }).select("_id").lean();
-        if (v) {
-          await User.updateOne(
-            { _id: order.user, "vouchers.voucher": v._id },
-            { $unset: { "vouchers.$.usedAt": "" } }
-          );
-          note += `, voucher ${order.voucherCode} dikembalikan`;
-        }
-      }
-    }
+    const note = next === "CANCELLED" ? await restoreCancelledOrder(order) : "";
 
     await logActivity(
       g.admin,

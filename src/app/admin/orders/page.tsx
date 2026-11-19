@@ -81,7 +81,12 @@ export default async function AdminOrders({
                       })}
                     </p>
                   </div>
-                  <OrderStatusControl id={String(o._id)} status={o.status as OrderStatus} />
+                  <div className="flex flex-col items-end gap-1">
+                    <OrderStatusControl id={String(o._id)} status={o.status as OrderStatus} />
+                    {o.status === "CANCELLED" && o.cancelledBy === "USER" && (
+                      <span className="text-xs text-black/50">Dibatalkan oleh pelanggan</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-4 grid gap-4 text-sm md:grid-cols-[1.2fr_1fr_auto]">

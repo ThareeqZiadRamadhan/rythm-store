@@ -6,6 +6,7 @@ import { connectDB } from "@/lib/mongodb";
 import { formatPrice } from "@/lib/data";
 import Order from "@/models/Order";
 import AccountEmpty from "@/components/AccountEmpty";
+import CancelOrderButton from "@/components/CancelOrderButton";
 
 export const metadata = { title: "Pesanan saya — RYTHM" };
 export const dynamic = "force-dynamic";
@@ -154,6 +155,21 @@ export default async function OrdersPage({
                     </div>
                   </dl>
                 </div>
+
+                {o.status === "PENDING" && (
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-5">
+                    <p className="text-xs text-black/50">
+                      Pesanan masih bisa dibatalkan selama belum diproses toko.
+                    </p>
+                    <CancelOrderButton id={String(o._id)} orderNumber={o.orderNumber} />
+                  </div>
+                )}
+                {o.status === "CANCELLED" && (
+                  <p className="mt-5 border-t border-black/10 pt-5 text-xs text-black/50">
+                    {o.cancelledBy === "USER" ? "Kamu membatalkan pesanan ini." : "Pesanan ini dibatalkan oleh toko."}{" "}
+                    Stok dan voucher sudah dikembalikan.
+                  </p>
+                )}
               </article>
             );
           })}

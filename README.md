@@ -23,6 +23,7 @@ Frontend dan backend berada dalam satu project. Backend ditulis sebagai API Rout
 - Wishlist tersimpan di akun
 - Klaim voucher, dengan kuota dan masa berlaku
 - Keranjang, checkout (pilih alamat, metode bayar, voucher), dan riwayat pesanan
+- Batalkan pesanan sendiri selama masih berstatus *Menunggu konfirmasi*. Stok dan voucher otomatis dikembalikan
 - Stok per ukuran tampil langsung di halaman produk
 - Pencarian produk dengan hasil langsung saat mengetik (bisa dibuka dengan Cmd+K)
 - Ulasan produk bintang 1–5, dengan label **Pembeli terverifikasi** bagi yang pernah memesan
@@ -37,9 +38,10 @@ Semua fitur pelanggan, ditambah:
 ### Superadmin (`SUPERADMIN`)
 Semua fitur admin, ditambah:
 - **Voucher**: buat, edit, aktif/nonaktifkan, atur kuota klaim, lihat statistik klaim, pemakaian, dan total potongan
-- **Pengguna**: lihat semua akun, ubah role, serta blokir dan aktifkan akun (tidak bisa untuk akun sendiri)
+- **Kelola admin (CRUD)**: tambah akun admin, lihat, edit nama/email/HP dan reset password, blokir/aktifkan, serta hapus akun admin. Superadmin hanya satu (dibuat oleh seed) dan role tidak bisa diubah dari panel
+- **Pelanggan**: lihat semua pelanggan beserta jumlah pesanannya, serta blokir dan aktifkan akun. Akun pelanggan dibuat sendiri lewat halaman Daftar
 - **Pengaturan toko**: teks pengumuman di atas navbar, ongkir, dan batas gratis ongkir. Langsung berlaku di keranjang, checkout, dan perhitungan total di server
-- **Log aktivitas**: catatan siapa mengubah apa dan kapan (produk, stok, harga, status pesanan, role, blokir akun, voucher, pengaturan toko, hapus ulasan)
+- **Log aktivitas**: catatan siapa mengubah apa dan kapan (produk, stok, harga, status pesanan, tambah/edit/hapus admin, blokir akun, voucher, pengaturan toko, hapus ulasan)
 
 Halaman yang tidak sesuai peran menampilkan 404, dan setiap API admin mengecek role langsung ke database.
 
@@ -247,7 +249,7 @@ shoes-store/
 
 - Password disimpan sebagai hash bcrypt dan tidak pernah dikirim ke browser
 - Sesi berupa JWT di cookie `httpOnly`, sehingga tidak bisa dibaca JavaScript
-- Role tidak pernah diambil dari input pengguna. Akun baru selalu `USER`, dan role hanya bisa diubah oleh superadmin
+- Role tidak pernah diambil dari input. Akun dari halaman Daftar selalu `USER`, akun yang dibuat superadmin selalu `ADMIN`, dan superadmin hanya satu dari seed
 - Setiap request mengecek status akun ke database, jadi akun yang diblokir atau dihapus langsung dianggap keluar
 - Harga, stok, voucher, dan ongkir selalu dihitung ulang di server saat checkout
 - Klaim kuota voucher dan pengurangan stok dilakukan secara atomik di database

@@ -44,6 +44,8 @@ const orderSchema = new Schema(
     voucherCode: { type: String },
     paymentMethod: { type: String, enum: PAYMENT_METHODS, required: true },
     status: { type: String, enum: ORDER_STATUSES, default: "PENDING" },
+    // Siapa yang membatalkan: pelanggan sendiri (hanya saat PENDING) atau admin.
+    cancelledBy: { type: String, enum: ["USER", "ADMIN"] },
   },
   { timestamps: true }
 );
