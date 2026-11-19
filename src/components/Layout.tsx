@@ -19,6 +19,34 @@ const navItems = [
   ["Sale", "/sale"],
 ];
 
+const FOOTER_LINKS: { title: string; links: { label: string; href: string; external?: boolean }[] }[] = [
+  {
+    title: "Shop",
+    links: [
+      { label: "Koleksi", href: "/shop" },
+      { label: "Terbaru", href: "/new" },
+      { label: "Sale", href: "/sale" },
+    ],
+  },
+  {
+    title: "Bantuan",
+    links: [
+      { label: "Lacak pesanan", href: "/account/orders" },
+      { label: "Cari ukuran", href: "/fit" },
+      { label: "Pengiriman", href: "/bantuan#pengiriman" },
+      { label: "Retur", href: "/bantuan#retur" },
+    ],
+  },
+  {
+    title: "Follow",
+    links: [
+      { label: "Instagram", href: "https://www.instagram.com/", external: true },
+      { label: "TikTok", href: "https://www.tiktok.com/", external: true },
+      { label: "Pinterest", href: "https://www.pinterest.com/", external: true },
+    ],
+  },
+];
+
 function Shell({ children, settings }: { children: ReactNode; settings: PublicSettings }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,6 +54,11 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
   const { user, ready, logout } = useSession();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  // Halaman admin punya tampilan sendiri: tanpa navbar, footer, banner, dan keranjang toko
+  if (pathname.startsWith("/admin")) {
+    return <div className="min-h-screen bg-[#f1f1ec] text-[#11120f]">{children}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f7f2] text-[#11120f]">
@@ -121,17 +154,27 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
               Independent sneaker label untuk mereka yang memilih jalannya sendiri.
             </p>
           </div>
-          {[
-            ["Shop", "Koleksi", "Terbaru", "Sale"],
-            ["Bantuan", "Lacak pesanan", "Pengiriman", "Retur"],
-            ["Follow", "Instagram", "TikTok", "Pinterest"],
-          ].map(([title, ...links]) => (
-            <div key={title}>
-              <h4 className="text-xs font-black uppercase tracking-[0.18em]">{title}</h4>
+          {FOOTER_LINKS.map((group) => (
+            <div key={group.title}>
+              <h4 className="text-xs font-black uppercase tracking-[0.18em]">{group.title}</h4>
               <div className="mt-4 flex flex-col gap-3 text-sm text-black/50">
-                {links.map((link) => (
-                  <span key={link}>{link}</span>
-                ))}
+                {group.links.map((link) =>
+                  link.external ? (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-fit transition-colors hover:text-black"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link key={link.label} href={link.href} className="w-fit transition-colors hover:text-black">
+                      {link.label}
+                    </Link>
+                  ),
+                )}
               </div>
             </div>
           ))}

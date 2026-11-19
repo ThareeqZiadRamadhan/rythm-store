@@ -145,7 +145,8 @@ export default function AuthPage({ mode }: { mode: Mode }) {
         if (password.length < 8) return setError("Password minimal 8 karakter.");
         const { ok, data } = await post("/api/auth/login", { email, password });
         if (!ok) return setError(data.error ?? "Terjadi kesalahan, coba lagi.");
-        router.push("/");
+        const role = data.user?.role;
+        router.push(role === "ADMIN" || role === "SUPERADMIN" ? "/admin" : "/");
         router.refresh();
         return;
       }
