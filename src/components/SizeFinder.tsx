@@ -115,7 +115,7 @@ function FootBoard({ cm, unit, shape }: { cm: number; unit: Unit; shape: FootSha
       viewBox="0 0 348 162"
       className="h-auto w-full select-none"
       role="img"
-      aria-label={`Telapak kaki sepanjang ${label}`}
+      aria-label={`Foot outline, ${label} long`}
       fontFamily="inherit"
     >
       {/* Papan ukur */}
@@ -188,10 +188,10 @@ export default function SizeFinder(_props: { [key: string]: unknown } = {}) {
   const { size, bumped, tooSmall, tooBig } = useMemo(() => pickSize(cm, shape), [cm, shape]);
   const percent = ((cm - MIN_CM) / (MAX_CM - MIN_CM)) * 100;
 
-  let advice = `Ambil EU ${size.eu} untuk semua sepatu RYTHM/. Ukuran sudah kami bulatkan ke atas supaya jari kaki tetap punya ruang.`;
-  if (bumped) advice = `Kaki lebar? Kami naikkan satu ukuran ke EU ${size.eu} supaya bagian depan sepatu tidak menekan.`;
-  if (tooSmall) advice = `Ukuran terkecil kami EU 38. Untuk kaki sepanjang ini, EU 38 kemungkinan masih terasa longgar.`;
-  if (tooBig) advice = `Kakimu sedikit lebih panjang dari ukuran terbesar kami. Coba EU 45 dan pilih model dengan bahan yang lentur.`;
+  let advice = `Take EU ${size.eu} in every RYTHM/ shoe. We round up so your toes always have room.`;
+  if (bumped) advice = `Wide feet? We sized you up to EU ${size.eu} so the toe box does not pinch.`;
+  if (tooSmall) advice = `Our smallest size is EU 38. For a foot this length, EU 38 may still feel a little loose.`;
+  if (tooBig) advice = `Your foot is a little longer than our largest size. Try EU 45 in a model with a stretchy upper.`;
 
   return (
     <section className="rounded-[32px] bg-white p-3 ring-1 ring-black/5 sm:p-4">
@@ -205,7 +205,7 @@ export default function SizeFinder(_props: { [key: string]: unknown } = {}) {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         {/* Kiri: kontrol */}
         <div className="flex flex-col p-5 sm:p-10">
-          <p className="text-[17px] text-[#111]">Panjang kaki</p>
+          <p className="text-[17px] text-[#111]">Foot length</p>
 
           <div className="mt-3 flex items-end justify-between gap-4">
             <p className="flex items-baseline gap-2 text-[#111]">
@@ -215,7 +215,7 @@ export default function SizeFinder(_props: { [key: string]: unknown } = {}) {
               <span className="text-xl text-[#8a8a85]">{unit}</span>
             </p>
             <Toggle
-              label="Satuan"
+              label="Unit"
               value={unit}
               onChange={setUnit}
               options={[
@@ -232,7 +232,7 @@ export default function SizeFinder(_props: { [key: string]: unknown } = {}) {
             step={0.1}
             value={cm}
             onChange={(e) => setCm(Number(e.target.value))}
-            aria-label="Panjang kaki"
+            aria-label="Foot length"
             aria-valuetext={`${toDisplay(cm, unit)} ${unit}`}
             className="fit-range mt-10 w-full"
             style={{
@@ -241,22 +241,22 @@ export default function SizeFinder(_props: { [key: string]: unknown } = {}) {
           />
 
           <div className="mt-10 flex items-center justify-between gap-4">
-            <p className="text-[17px] text-[#111]">Bentuk kaki</p>
+            <p className="text-[17px] text-[#111]">Feet that are</p>
             <Toggle
-              label="Bentuk kaki"
+              label="Foot width"
               value={shape}
               onChange={setShape}
               options={[
-                { value: "regular", label: "Normal" },
-                { value: "wide", label: "Lebar" },
+                { value: "regular", label: "Regular" },
+                { value: "wide", label: "Wide" },
               ]}
             />
           </div>
 
           <dl className="mt-8 grid grid-cols-4 gap-4 border-y border-black/10 py-6">
             {[
-              { k: "US pria", v: fmt(size.usMen) },
-              { k: "US wanita", v: fmt(size.usWomen) },
+              { k: "US men", v: fmt(size.usMen) },
+              { k: "US women", v: fmt(size.usWomen) },
               { k: "EU", v: fmt(size.eu) },
               { k: "UK", v: fmt(size.uk) },
             ].map((item) => (
@@ -273,7 +273,7 @@ export default function SizeFinder(_props: { [key: string]: unknown } = {}) {
             href={`/shop?size=${size.eu}`}
             className="mt-8 inline-flex w-fit items-center rounded-full bg-[#111] px-8 py-4 text-[16px] font-medium text-white transition hover:bg-black/80"
           >
-            Belanja sepatu EU {size.eu}
+            Shop shoes in EU {size.eu}
           </Link>
         </div>
 

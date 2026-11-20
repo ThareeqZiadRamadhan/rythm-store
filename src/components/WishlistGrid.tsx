@@ -36,10 +36,10 @@ export default function WishlistGrid({ initial }: { initial: WishlistItem[] }) {
     return (
       <AccountEmpty
         icon={Heart}
-        title="Wishlist masih kosong"
-        text="Klik ikon hati di produk untuk menyimpannya di sini."
+        title="Your wishlist is empty"
+        text="Tap the heart icon on any product to save it here."
         href="/shop"
-        cta="Lihat koleksi"
+        cta="Browse the collection"
       />
     );
   }
@@ -56,7 +56,7 @@ export default function WishlistGrid({ initial }: { initial: WishlistItem[] }) {
           <button
             type="button"
             onClick={() => remove(p.slug)}
-            aria-label={`Hapus ${p.name} dari wishlist`}
+            aria-label={`Remove ${p.name} from wishlist`}
             className="absolute right-3 top-3 z-10 grid size-9 place-items-center rounded-full bg-white/90 shadow-sm transition hover:bg-red-50 hover:text-red-600"
           >
             <X size={16} />

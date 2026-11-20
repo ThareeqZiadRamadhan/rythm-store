@@ -49,13 +49,13 @@ export default function SettingsForm({ initial }: { initial: PublicSettings }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMsg({ ok: false, text: data.error ?? "Gagal menyimpan pengaturan." });
+        setMsg({ ok: false, text: data.error ?? "Could not save the settings." });
         return;
       }
-      setMsg({ ok: true, text: "Pengaturan tersimpan dan langsung berlaku di toko." });
+      setMsg({ ok: true, text: "Settings saved and applied to the store." });
       router.refresh();
     } catch {
-      setMsg({ ok: false, text: "Tidak bisa terhubung ke server." });
+      setMsg({ ok: false, text: "Could not connect to the server." });
     } finally {
       setSaving(false);
     }
@@ -64,7 +64,7 @@ export default function SettingsForm({ initial }: { initial: PublicSettings }) {
   return (
     <form onSubmit={save} className="max-w-3xl space-y-6">
       <section className="space-y-4 rounded-3xl bg-[#f7f7f2] p-6">
-        <h2 className="text-lg font-black">Pengumuman</h2>
+        <h2 className="text-lg font-black">Announcement</h2>
         <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold">
           <input
             type="checkbox"
@@ -72,47 +72,47 @@ export default function SettingsForm({ initial }: { initial: PublicSettings }) {
             onChange={(e) => setEnabled(e.target.checked)}
             className="size-5 accent-black"
           />
-          Tampilkan bar pengumuman di atas navbar
+          Show the announcement bar above the navbar
         </label>
-        <F label="Teks pengumuman" hint={`${text.length}/120 karakter`}>
+        <F label="Announcement text" hint={`${text.length}/120 characters`}>
           <input
             className={input}
             value={text}
             maxLength={120}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Misal: Diskon 20% akhir tahun, pakai kode GAJIAN20"
+            placeholder="e.g. 20% off year-end sale, use code PAYDAY20"
           />
         </F>
         <div>
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-black/40">Pratinjau</p>
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-black/40">Preview</p>
           {enabled ? (
             <div className="rounded-lg bg-[#11120f] px-5 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
               {text || "…"}
             </div>
           ) : (
-            <p className="text-sm text-black/45">Bar pengumuman disembunyikan.</p>
+            <p className="text-sm text-black/45">The announcement bar is hidden.</p>
           )}
         </div>
       </section>
 
       <section className="space-y-4 rounded-3xl bg-[#f7f7f2] p-6">
-        <h2 className="text-lg font-black">Ongkos kirim</h2>
+        <h2 className="text-lg font-black">Shipping</h2>
         <div className="grid gap-4 md:grid-cols-2">
-          <F label="Ongkir per pesanan (Rp)" hint="0 = selalu gratis ongkir">
+          <F label="Shipping fee per order (Rp)" hint="0 = always free shipping">
             <input className={input} inputMode="numeric" value={fee} onChange={(e) => setFee(digits(e.target.value))} />
           </F>
-          <F label="Gratis ongkir mulai belanja (Rp)" hint="0 = tidak ada gratis ongkir berdasarkan minimum">
+          <F label="Free shipping from (Rp)" hint="0 = no free shipping based on order value">
             <input className={input} inputMode="numeric" value={min} onChange={(e) => setMin(digits(e.target.value))} />
           </F>
         </div>
         <div className="rounded-2xl bg-white p-4 text-sm">
-          <p className="font-bold">Yang dilihat pembeli</p>
+          <p className="font-bold">What shoppers see</p>
           <p className="mt-1 text-black/60">{freeShippingText(rule)}.</p>
           {rule.shippingFee > 0 && (
             <p className="mt-1 text-black/60">
-              Contoh: belanja {formatPrice(500000)} → ongkir{" "}
+              Example: an order of {formatPrice(500000)} → shipping{" "}
               <span className="font-bold">
-                {rule.freeShippingMin > 0 && 500000 >= rule.freeShippingMin ? "gratis" : formatPrice(rule.shippingFee)}
+                {rule.freeShippingMin > 0 && 500000 >= rule.freeShippingMin ? "free" : formatPrice(rule.shippingFee)}
               </span>
             </p>
           )}
@@ -135,7 +135,7 @@ export default function SettingsForm({ initial }: { initial: PublicSettings }) {
         className="flex h-12 items-center gap-2 rounded-full bg-[#11120f] px-8 text-sm font-bold text-white hover:bg-black/80 disabled:opacity-60"
       >
         {saving && <Loader2 size={16} className="animate-spin" />}
-        Simpan pengaturan
+        Save settings
       </button>
     </form>
   );

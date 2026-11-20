@@ -11,28 +11,28 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   try {
     const body = await req.json().catch(() => ({}));
     const code = String(body.code ?? "").trim().toUpperCase();
     if (!code) {
-      return NextResponse.json({ error: "Masukkan kode voucher." }, { status: 400 });
+      return NextResponse.json({ error: "Please enter a voucher code." }, { status: 400 });
     }
 
     await connectDB();
     const voucher = await Voucher.findOne({ code });
     if (!voucher) {
-      return NextResponse.json({ error: "Kode voucher tidak ditemukan." }, { status: 404 });
+      return NextResponse.json({ error: "Voucher code not found." }, { status: 404 });
     }
     if (!voucher.isActive || (voucher.expiresAt && voucher.expiresAt < new Date())) {
-      return NextResponse.json({ error: "Voucher ini sudah tidak berlaku." }, { status: 400 });
+      return NextResponse.json({ error: "This voucher is no longer valid." }, { status: 400 });
     }
 
     const already = await User.exists({ _id: session.sub, "vouchers.voucher": voucher._id });
     if (already) {
-      return NextResponse.json({ error: "Voucher ini sudah kamu klaim." }, { status: 409 });
+      return NextResponse.json({ error: "You've already claimed this voucher." }, { status: 409 });
     }
 
     // Ambil satu jatah kuota secara atomik (aman walau banyak yang klaim bersamaan)
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       { new: true }
     );
     if (!reserved) {
-      return NextResponse.json({ error: "Maaf, kuota voucher ini sudah habis." }, { status: 409 });
+      return NextResponse.json({ error: "Sorry, this voucher has been fully claimed." }, { status: 409 });
     }
 
     const pushed = await User.updateOne(
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       // Gagal disimpan ke akun: kembalikan jatah kuotanya
       await Voucher.updateOne({ _id: voucher._id }, { $inc: { claimedCount: -1 } });
       return NextResponse.json(
-        { error: "Voucher gagal disimpan. Coba lagi." },
+        { error: "Could not save the voucher. Please try again." },
         { status: 409 }
       );
     }
@@ -70,6 +70,6 @@ export async function POST(req: Request) {
     return NextResponse.json(await getVoucherLists(session.sub), { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

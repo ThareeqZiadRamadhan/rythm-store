@@ -38,7 +38,7 @@ function makeOrderNumber() {
 
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return bad("Silakan masuk dulu.", 401);
+  if (!session) return bad("Please sign in first.", 401);
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
     const paymentMethod = String(body.paymentMethod ?? "");
 
     if (!(PAYMENT_METHODS as readonly string[]).includes(paymentMethod)) {
-      return bad("Pilih metode pembayaran.");
+      return bad("Please choose a payment method.");
     }
 
     // Gabungkan item dengan produk + ukuran yang sama
@@ -59,21 +59,21 @@ export async function POST(req: Request) {
       const size = Number(it.size);
       const quantity = Math.floor(Number(it.quantity));
       if (!slug || !SIZES.includes(size) || !(quantity >= 1 && quantity <= 10)) {
-        return bad("Isi keranjang tidak valid.");
+        return bad("Your cart contents are invalid.");
       }
       const key = `${slug}:${size}`;
       merged.set(key, { slug, size, quantity: (merged.get(key)?.quantity ?? 0) + quantity });
     }
     const items = [...merged.values()];
-    if (items.length === 0) return bad("Keranjang masih kosong.");
-    if (items.length > 20) return bad("Terlalu banyak item dalam satu pesanan.");
+    if (items.length === 0) return bad("Your cart is empty.");
+    if (items.length > 20) return bad("Too many items in one order.");
 
     await connectDB();
     const user = await User.findById(session.sub).select("addresses vouchers");
-    if (!user) return bad("Akun tidak ditemukan.", 404);
+    if (!user) return bad("Account not found.", 404);
 
     const address = user.addresses.find((a) => String(a._id) === addressId);
-    if (!address) return bad("Pilih alamat pengiriman.");
+    if (!address) return bad("Please choose a shipping address.");
 
     // Harga selalu diambil dari database, bukan dari browser
     const products = await Product.find({
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     const lines: Line[] = [];
     for (const it of items) {
       const p = bySlug.get(it.slug);
-      if (!p) return bad("Ada produk di keranjang yang sudah tidak tersedia.");
+      if (!p) return bad("Some products in your cart are no longer available.");
       lines.push({
         product: p._id,
         slug: p.slug,
@@ -107,11 +107,11 @@ export async function POST(req: Request) {
       const v = await Voucher.findOne({ code: voucherCode }).lean();
       const owned =
         v && user.vouchers.find((w) => String(w.voucher) === String(v._id) && !w.usedAt);
-      if (!v || !owned) return bad("Voucher tidak bisa dipakai.");
+      if (!v || !owned) return bad("This voucher cannot be used.");
       if (!v.isActive || (v.expiresAt && new Date(v.expiresAt) < new Date())) {
-        return bad("Voucher sudah kedaluwarsa.");
+        return bad("This voucher has expired.");
       }
-      if (subtotal < (v.minSpend ?? 0)) return bad("Belanja belum mencapai minimum voucher.");
+      if (subtotal < (v.minSpend ?? 0)) return bad("Your order hasn't reached the voucher's minimum spend.");
       discount = calcDiscount(
         {
           type: v.type as "PERCENT" | "FIXED",
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
       );
       if (r.modifiedCount === 0) {
         await rollbackStock();
-        return bad(`Stok ${l.name} ukuran EU ${l.size} tidak cukup.`, 409);
+        return bad(`Not enough stock for ${l.name} in EU ${l.size}.`, 409);
       }
       done.push(l);
     }
@@ -156,7 +156,7 @@ export async function POST(req: Request) {
       );
       if (r.modifiedCount === 0) {
         await rollbackStock();
-        return bad("Voucher sudah terpakai.");
+        return bad("This voucher has already been used.");
       }
     }
 
@@ -194,6 +194,6 @@ export async function POST(req: Request) {
     }
   } catch (err) {
     console.error(err);
-    return bad("Terjadi kesalahan di server.", 500);
+    return bad("Something went wrong on the server.", 500);
   }
 }

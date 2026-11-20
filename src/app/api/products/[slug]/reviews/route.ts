@@ -46,13 +46,13 @@ export async function GET(_req: Request, { params }: Ctx) {
   const { slug } = await params;
   const session = await getSession();
   const product = await findProduct(slug);
-  if (!product) return NextResponse.json({ error: "Produk tidak ditemukan." }, { status: 404 });
+  if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
   return NextResponse.json(await payload(product._id, session));
 }
 
 export async function POST(req: Request, { params }: Ctx) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+  if (!session) return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
 
   try {
     const { slug } = await params;
@@ -61,17 +61,17 @@ export async function POST(req: Request, { params }: Ctx) {
     const comment = String(body.comment ?? "").trim();
 
     if (!(rating >= 1 && rating <= 5)) {
-      return NextResponse.json({ error: "Pilih rating 1 sampai 5." }, { status: 400 });
+      return NextResponse.json({ error: "Please choose a rating from 1 to 5." }, { status: 400 });
     }
     if (comment.length > 1000) {
-      return NextResponse.json({ error: "Ulasan maksimal 1000 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Reviews can be at most 1000 characters." }, { status: 400 });
     }
 
     const product = await findProduct(slug);
-    if (!product) return NextResponse.json({ error: "Produk tidak ditemukan." }, { status: 404 });
+    if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
     const user = await User.findById(session.sub).select("name").lean();
-    if (!user) return NextResponse.json({ error: "Akun tidak ditemukan." }, { status: 404 });
+    if (!user) return NextResponse.json({ error: "Account not found." }, { status: 404 });
 
     const bought = await Order.exists({
       user: session.sub,
@@ -88,29 +88,29 @@ export async function POST(req: Request, { params }: Ctx) {
     return NextResponse.json(await payload(product._id, session), { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request, { params }: Ctx) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+  if (!session) return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
 
   const { slug } = await params;
   const id = new URL(req.url).searchParams.get("id") ?? "";
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID ulasan tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid review ID." }, { status: 400 });
   }
 
   const product = await findProduct(slug);
-  if (!product) return NextResponse.json({ error: "Produk tidak ditemukan." }, { status: 404 });
+  if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
   const review = await Review.findOne({ _id: id, product: product._id });
-  if (!review) return NextResponse.json({ error: "Ulasan tidak ditemukan." }, { status: 404 });
+  if (!review) return NextResponse.json({ error: "Review not found." }, { status: 404 });
 
   const owner = String(review.user) === session.sub;
   if (!owner && !isMod(session)) {
-    return NextResponse.json({ error: "Kamu tidak boleh menghapus ulasan ini." }, { status: 403 });
+    return NextResponse.json({ error: "You are not allowed to delete this review." }, { status: 403 });
   }
 
   await review.deleteOne();

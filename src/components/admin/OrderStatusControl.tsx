@@ -17,7 +17,7 @@ export default function OrderStatusControl({ id, status }: { id: string; status:
   const options = NEXT_STATUS[status];
 
   async function change(next: OrderStatus) {
-    if (next === "CANCELLED" && !window.confirm("Batalkan pesanan ini? Stok dan voucher akan dikembalikan.")) {
+    if (next === "CANCELLED" && !window.confirm("Cancel this order? Stock and any voucher used will be restored.")) {
       return;
     }
     setBusy(next);
@@ -29,7 +29,7 @@ export default function OrderStatusControl({ id, status }: { id: string; status:
     const data = await res.json().catch(() => ({}));
     setBusy(null);
     if (!res.ok) {
-      window.alert(data.error ?? "Gagal mengubah status.");
+      window.alert(data.error ?? "Could not update the status.");
       return;
     }
     router.refresh();

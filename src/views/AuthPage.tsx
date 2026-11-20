@@ -12,9 +12,9 @@ type Step = "email" | "details";
 const COUNTRY_CODES = [
   ["+62", "Indonesia"],
   ["+60", "Malaysia"],
-  ["+65", "Singapura"],
+  ["+65", "Singapore"],
   ["+61", "Australia"],
-  ["+1", "AS / Kanada"],
+  ["+1", "US / Canada"],
 ];
 
 const inputClass =
@@ -72,7 +72,7 @@ function EyeToggle({ shown, onClick }: { shown: boolean; onClick: () => void }) 
     <button
       type="button"
       onClick={onClick}
-      aria-label={shown ? "Sembunyikan password" : "Tampilkan password"}
+      aria-label={shown ? "Hide password" : "Show password"}
       className="text-black/45 hover:text-black"
     >
       {shown ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -135,16 +135,16 @@ export default function AuthPage({ mode }: { mode: Mode }) {
     setEmailTaken(false);
 
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      return setError("Format email belum benar.");
+      return setError("Please enter a valid email address.");
     }
 
     setLoading(true);
     try {
       // Login
       if (!isRegister) {
-        if (password.length < 8) return setError("Password minimal 8 karakter.");
+        if (password.length < 8) return setError("Password must be at least 8 characters.");
         const { ok, data } = await post("/api/auth/login", { email, password });
-        if (!ok) return setError(data.error ?? "Terjadi kesalahan, coba lagi.");
+        if (!ok) return setError(data.error ?? "Something went wrong. Please try again.");
         const role = data.user?.role;
         router.push(role === "ADMIN" || role === "SUPERADMIN" ? "/admin" : "/");
         router.refresh();
@@ -154,7 +154,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
       // Daftar, langkah 1: cek email
       if (step === "email") {
         const { ok, data } = await post("/api/auth/lookup", { email });
-        if (!ok) return setError(data.error ?? "Terjadi kesalahan, coba lagi.");
+        if (!ok) return setError(data.error ?? "Something went wrong. Please try again.");
         if (data.exists) return setEmailTaken(true);
         setStep("details");
         return;
@@ -162,10 +162,10 @@ export default function AuthPage({ mode }: { mode: Mode }) {
 
       // Daftar, langkah 2: data lengkap
       if (phoneDigits.length < 8 || phoneDigits.length > 13) {
-        return setError("Nomor HP belum benar.");
+        return setError("Please enter a valid phone number.");
       }
-      if (password.length < 8) return setError("Password minimal 8 karakter.");
-      if (password !== confirm) return setError("Konfirmasi password tidak sama.");
+      if (password.length < 8) return setError("Password must be at least 8 characters.");
+      if (password !== confirm) return setError("Passwords do not match.");
 
       const { ok, data } = await post("/api/auth/register", {
         firstName,
@@ -174,24 +174,24 @@ export default function AuthPage({ mode }: { mode: Mode }) {
         email,
         password,
       });
-      if (!ok) return setError(data.error ?? "Terjadi kesalahan, coba lagi.");
+      if (!ok) return setError(data.error ?? "Something went wrong. Please try again.");
 
       router.push("/");
       router.refresh();
     } catch {
-      setError("Tidak bisa terhubung ke server.");
+      setError("Could not connect to the server.");
     } finally {
       setLoading(false);
     }
   }
 
   const buttonLabel = loading
-    ? "Memproses..."
+    ? "Processing..."
     : !isRegister
-    ? "Masuk dengan Email"
+    ? "Sign in with Email"
     : step === "email"
-    ? "Daftar dengan Email"
-    : "Daftar";
+    ? "Sign up with Email"
+    : "Sign up";
 
   return (
     <section className="mx-auto grid max-w-[1200px] items-center gap-10 px-6 py-12 md:px-10 lg:grid-cols-2 lg:gap-16 lg:py-16">
@@ -201,7 +201,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
       {/* Kanan: form */}
       <div className="mx-auto w-full max-w-md">
         <h1 className="text-center text-3xl font-black tracking-tight">
-          {isRegister ? "Daftar" : "Masuk"}
+          {isRegister ? "Sign up" : "Sign in"}
         </h1>
 
         <form onSubmit={handleSubmit} noValidate className="mt-10 space-y-5">
@@ -209,7 +209,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
           {isRegister && step === "details" && (
             <div className="flex items-center gap-3 rounded-xl bg-sky-50 px-4 py-3.5 text-sm text-black/80">
               <Info className="h-5 w-5 shrink-0 text-sky-500" />
-              Datamu aman dan tidak dibagikan ke pihak ketiga.
+              Your data is safe and never shared with third parties.
             </div>
           )}
 
@@ -234,7 +234,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
                 onClick={goBackToEmail}
                 className="ml-1 font-bold text-black underline underline-offset-4"
               >
-                Ubah
+                Change
               </button>
             </p>
           )}
@@ -244,31 +244,31 @@ export default function AuthPage({ mode }: { mode: Mode }) {
             <>
               <div className="grid grid-cols-2 gap-4">
                 <Field
-                  label="Nama depan"
+                  label="First name"
                   value={firstName}
                   onChange={setFirstName}
-                  placeholder="Nama depan"
+                  placeholder="First name"
                   autoComplete="given-name"
                   autoFocus
                 />
                 <Field
-                  label="Nama belakang"
+                  label="Last name"
                   value={lastName}
                   onChange={setLastName}
-                  placeholder="Nama belakang"
+                  placeholder="Last name"
                   autoComplete="family-name"
                 />
               </div>
 
               <div>
                 <span className="mb-2 block text-sm font-bold">
-                  Nomor HP<span className="text-red-500">*</span>
+                  Phone number<span className="text-red-500">*</span>
                 </span>
                 <div className="flex gap-3">
                   <select
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    aria-label="Kode negara"
+                    aria-label="Country code"
                     className="h-12 w-28 shrink-0 rounded-lg border border-black/15 bg-white px-3 text-sm outline-none focus:border-black"
                   >
                     {COUNTRY_CODES.map(([c, n]) => (
@@ -298,7 +298,7 @@ export default function AuthPage({ mode }: { mode: Mode }) {
               type={showPw ? "text" : "password"}
               value={password}
               onChange={setPassword}
-              placeholder={isRegister ? "Minimal 8 karakter" : "Password"}
+              placeholder={isRegister ? "At least 8 characters" : "Password"}
               autoComplete={isRegister ? "new-password" : "current-password"}
               right={<EyeToggle shown={showPw} onClick={() => setShowPw((s) => !s)} />}
             />
@@ -307,11 +307,11 @@ export default function AuthPage({ mode }: { mode: Mode }) {
           {isRegister && step === "details" && (
             <>
               <Field
-                label="Konfirmasi password"
+                label="Confirm password"
                 type={showConfirm ? "text" : "password"}
                 value={confirm}
                 onChange={setConfirm}
-                placeholder="Ulangi password"
+                placeholder="Repeat password"
                 autoComplete="new-password"
                 right={
                   <EyeToggle
@@ -329,15 +329,15 @@ export default function AuthPage({ mode }: { mode: Mode }) {
                   className="mt-0.5 size-5 shrink-0 accent-black"
                 />
                 <span>
-                  Dengan mendaftar, aku menyetujui{" "}
+                  By signing up, I agree to the{" "}
                   <span className="font-bold text-[#5f7a00] underline underline-offset-2">
-                    Syarat dan Ketentuan
+                    Terms and Conditions
                   </span>{" "}
-                  serta{" "}
+                  and{" "}
                   <span className="font-bold text-[#5f7a00] underline underline-offset-2">
-                    Kebijakan Privasi
+                    Privacy Policy
                   </span>{" "}
-                  RYTHM.
+                  of RYTHM.
                 </span>
               </label>
             </>
@@ -345,9 +345,9 @@ export default function AuthPage({ mode }: { mode: Mode }) {
 
           {emailTaken && (
             <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Email ini sudah terdaftar.{" "}
+              This email is already registered.{" "}
               <Link href="/login" className="font-bold underline underline-offset-4">
-                Masuk saja
+                Sign in instead
               </Link>
               .
             </p>
@@ -369,12 +369,12 @@ export default function AuthPage({ mode }: { mode: Mode }) {
         </form>
 
         <p className="mt-8 text-center text-sm text-black/60">
-          {isRegister ? "Sudah punya akun?" : "Belum punya akun?"}{" "}
+          {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
           <Link
             href={isRegister ? "/login" : "/register"}
             className="font-bold text-black underline underline-offset-4"
           >
-            {isRegister ? "Masuk" : "Daftar"}
+            {isRegister ? "Sign in" : "Sign up"}
           </Link>
         </p>
       </div>

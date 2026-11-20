@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const password = String(body.password ?? "");
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Email dan password wajib diisi." }, { status: 400 });
+      return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
 
     await connectDB();
@@ -22,12 +22,12 @@ export async function POST(req: Request) {
 
     // Pesan sama untuk email salah maupun password salah.
     if (!user || !valid) {
-      return NextResponse.json({ error: "Email atau password salah." }, { status: 401 });
+      return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
     }
 
     if (user.isBlocked) {
       return NextResponse.json(
-        { error: "Akun kamu dinonaktifkan. Hubungi admin RYTHM untuk informasi lebih lanjut." },
+        { error: "Your account has been deactivated. Please contact RYTHM support for more information." },
         { status: 403 }
       );
     }
@@ -43,6 +43,6 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

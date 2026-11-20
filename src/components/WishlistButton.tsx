@@ -18,7 +18,7 @@ export default function WishlistButton({
   return (
     <button
       type="button"
-      aria-label={saved ? "Hapus dari wishlist" : "Simpan ke wishlist"}
+      aria-label={saved ? "Remove from wishlist" : "Save to wishlist"}
       aria-pressed={saved}
       onClick={(e) => {
         e.preventDefault();

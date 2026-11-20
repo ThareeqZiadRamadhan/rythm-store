@@ -22,14 +22,14 @@ type Role = "ADMIN" | "SUPERADMIN";
 
 const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Produk", icon: Tag },
-  { href: "/admin/orders", label: "Pesanan", icon: Package },
+  { href: "/admin/products", label: "Products", icon: Tag },
+  { href: "/admin/orders", label: "Orders", icon: Package },
 ];
 const SUPER_ITEMS = [
-  { href: "/admin/vouchers", label: "Voucher", icon: Ticket },
-  { href: "/admin/users", label: "Pengguna", icon: Users },
-  { href: "/admin/activity", label: "Log aktivitas", icon: History },
-  { href: "/admin/settings", label: "Pengaturan", icon: Settings },
+  { href: "/admin/vouchers", label: "Vouchers", icon: Ticket },
+  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/activity", label: "Activity log", icon: History },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 function Brand() {
@@ -88,7 +88,7 @@ export default function AdminNav({ role, name }: { role: Role; name: string }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Buka menu admin"
+          aria-label="Open admin menu"
           className="grid size-10 place-items-center rounded-full text-white hover:bg-white/10"
         >
           <Menu size={20} />
@@ -99,7 +99,7 @@ export default function AdminNav({ role, name }: { role: Role; name: string }) {
       {open && (
         <button
           type="button"
-          aria-label="Tutup menu admin"
+          aria-label="Close admin menu"
           onClick={() => setOpen(false)}
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
         />
@@ -116,16 +116,16 @@ export default function AdminNav({ role, name }: { role: Role; name: string }) {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label="Tutup menu admin"
+            aria-label="Close admin menu"
             className="grid size-9 place-items-center rounded-full text-white/70 hover:bg-white/10 lg:hidden"
           >
             <X size={18} />
           </button>
         </div>
 
-        <nav aria-label="Menu admin" className="mt-8 flex flex-1 flex-col gap-1 overflow-y-auto">
+        <nav aria-label="Admin menu" className="mt-8 flex flex-1 flex-col gap-1 overflow-y-auto">
           <p className="px-3.5 pb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">
-            Operasional
+            Operations
           </p>
           {ITEMS.map(renderLink)}
 
@@ -160,7 +160,7 @@ export default function AdminNav({ role, name }: { role: Role; name: string }) {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-white/[0.08] px-3 py-2.5 text-[13px] font-medium text-white/80 hover:bg-white/15 hover:text-white"
             >
-              Lihat toko <ArrowUpRight size={14} />
+              View store <ArrowUpRight size={14} />
             </a>
             <button
               type="button"
@@ -168,7 +168,7 @@ export default function AdminNav({ role, name }: { role: Role; name: string }) {
               disabled={leaving}
               className="flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-white/[0.08] px-3 py-2.5 text-[13px] font-medium text-white/80 hover:bg-[#e2533f] hover:text-white disabled:opacity-50"
             >
-              <LogOut size={14} /> {leaving ? "Keluar…" : "Keluar"}
+              <LogOut size={14} /> {leaving ? "Signing out…" : "Sign out"}
             </button>
           </div>
         </div>

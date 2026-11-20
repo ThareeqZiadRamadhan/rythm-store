@@ -25,20 +25,20 @@ export async function GET() {
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   try {
     const body = await req.json().catch(() => ({}));
     const slug = String(body.slug ?? "").trim();
     if (!slug) {
-      return NextResponse.json({ error: "Produk tidak valid." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid product." }, { status: 400 });
     }
 
     await connectDB();
     const product = await Product.findOne({ slug }).select("_id");
     if (!product) {
-      return NextResponse.json({ error: "Produk tidak ditemukan." }, { status: 404 });
+      return NextResponse.json({ error: "Product not found." }, { status: 404 });
     }
 
     const has = await User.exists({ _id: session.sub, wishlist: product._id });
@@ -50,6 +50,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ saved: !has, slugs: await slugsOf(session.sub) });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

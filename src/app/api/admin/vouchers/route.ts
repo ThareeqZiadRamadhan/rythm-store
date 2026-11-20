@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const d = parsed.data;
 
     if (await Voucher.exists({ code: d.code })) {
-      return NextResponse.json({ error: "Kode voucher sudah dipakai." }, { status: 409 });
+      return NextResponse.json({ error: "This voucher code is already in use." }, { status: 409 });
     }
 
     const v = await Voucher.create(d);
@@ -25,6 +25,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ id: String(v._id) }, { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

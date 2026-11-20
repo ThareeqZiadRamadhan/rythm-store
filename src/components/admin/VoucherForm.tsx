@@ -68,7 +68,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
   const sample = Math.max(rule.minSpend, 1_000_000);
   const sampleDiscount = calcDiscount(rule, sample);
   const stub =
-    f.type === "PERCENT" ? `${rule.value}%` : `Rp${Math.round(rule.value / 1000)}rb`;
+    f.type === "PERCENT" ? `${rule.value}%` : `Rp${Math.round(rule.value / 1000)}K`;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,14 +82,14 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Gagal menyimpan voucher.");
+        setError(data.error ?? "Could not save the voucher.");
         setSaving(false);
         return;
       }
       router.push("/admin/vouchers");
       router.refresh();
     } catch {
-      setError("Tidak bisa terhubung ke server.");
+      setError("Could not connect to the server.");
       setSaving(false);
     }
   }
@@ -98,26 +98,26 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
     <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <section className="space-y-4 rounded-3xl bg-[#f7f7f2] p-6">
         <div className="grid gap-4 md:grid-cols-2">
-          <F label="Kode voucher" hint={editing ? "Kode tidak bisa diubah setelah dibuat." : "Huruf dan angka, 3–20 karakter."}>
+          <F label="Voucher code" hint={editing ? "The code cannot be changed after it is created." : "Letters and numbers, 3–20 characters."}>
             <input
               className={`${input} font-mono uppercase`}
               value={f.code}
               disabled={editing}
               onChange={(e) => set("code", e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
-              placeholder="LEBARAN25"
+              placeholder="HOLIDAY25"
             />
           </F>
-          <F label="Judul">
+          <F label="Title">
             <input
               className={input}
               value={f.title}
               onChange={(e) => set("title", e.target.value)}
-              placeholder="Diskon Lebaran 25%"
+              placeholder="Holiday 25% off"
             />
           </F>
         </div>
 
-        <F label="Deskripsi" hint="Opsional, tampil di halaman Voucher saya.">
+        <F label="Description" hint="Optional, shown on the My vouchers page.">
           <input
             className={input}
             value={f.description}
@@ -126,12 +126,12 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
         </F>
 
         <div>
-          <span className="mb-1.5 block text-sm font-bold">Jenis voucher</span>
+          <span className="mb-1.5 block text-sm font-bold">Voucher type</span>
           <div className="grid grid-cols-2 gap-3">
             {(
               [
-                ["PERCENT", "Diskon persen", "Contoh: 10% dengan batas maksimum"],
-                ["FIXED", "Potongan nominal", "Contoh: potong Rp100.000"],
+                ["PERCENT", "Percentage off", "e.g. 10% with a maximum cap"],
+                ["FIXED", "Fixed amount off", "e.g. Rp100,000 off"],
               ] as const
             ).map(([val, label, desc]) => (
               <button
@@ -150,7 +150,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <F label={f.type === "PERCENT" ? "Diskon (%)" : "Potongan (Rp)"}>
+          <F label={f.type === "PERCENT" ? "Discount (%)" : "Amount off (Rp)"}>
             <input
               className={input}
               inputMode="numeric"
@@ -158,7 +158,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
               onChange={(e) => set("value", digits(e.target.value))}
             />
           </F>
-          <F label="Minimum belanja (Rp)" hint="0 = tanpa minimum">
+          <F label="Minimum spend (Rp)" hint="0 = no minimum">
             <input
               className={input}
               inputMode="numeric"
@@ -167,7 +167,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
             />
           </F>
           {f.type === "PERCENT" && (
-            <F label="Maks. potongan (Rp)" hint="0 = tanpa batas">
+            <F label="Max. discount (Rp)" hint="0 = no limit">
               <input
                 className={input}
                 inputMode="numeric"
@@ -179,7 +179,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <F label="Kuota klaim" hint="Jumlah maksimal yang bisa mengklaim. 0 = tanpa batas.">
+          <F label="Claim quota" hint="Maximum number of people who can claim it. 0 = unlimited.">
             <input
               className={input}
               inputMode="numeric"
@@ -187,7 +187,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
               onChange={(e) => set("quota", digits(e.target.value))}
             />
           </F>
-          <F label="Berlaku sampai" hint="Kosongkan kalau tanpa batas. Berakhir 23.59 WIB.">
+          <F label="Valid until" hint="Leave empty for no end date. Ends at 23:59 WIB.">
             <input
               type="date"
               className={input}
@@ -204,7 +204,7 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
             onChange={(e) => set("isActive", e.target.checked)}
             className="size-5 accent-black"
           />
-          Aktif (bisa diklaim dan dipakai)
+          Active (can be claimed and used)
         </label>
       </section>
 
@@ -217,24 +217,24 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
           >
             <span className="text-xl font-black leading-none">{stub}</span>
             <span className="mt-1 text-[10px] font-bold uppercase tracking-wider">
-              {f.type === "PERCENT" ? "Diskon" : "Potongan"}
+              {f.type === "PERCENT" ? "Discount" : "Off"}
             </span>
           </div>
           <div className="min-w-0 border-l border-dashed border-black/20 p-3">
-            <p className="truncate font-bold">{f.title || "Judul voucher"}</p>
+            <p className="truncate font-bold">{f.title || "Voucher title"}</p>
             <span className="mt-1 inline-block rounded-md bg-black/5 px-2 py-0.5 font-mono text-xs font-bold">
-              {f.code || "KODE"}
+              {f.code || "CODE"}
             </span>
             <p className="mt-1 text-xs text-black/50">
-              {Number(f.quota) > 0 ? `Kuota ${Number(f.quota)} orang` : "Tanpa batas kuota"}
+              {Number(f.quota) > 0 ? `Quota: ${Number(f.quota)} people` : "Unlimited quota"}
             </p>
           </div>
         </div>
 
         <div className="rounded-2xl bg-[#f7f7f2] p-4 text-sm">
-          <p className="font-bold">Contoh hitungan</p>
+          <p className="font-bold">Example calculation</p>
           <p className="mt-1 text-black/60">
-            Belanja {formatPrice(sample)} → potongan{" "}
+            An order of {formatPrice(sample)} → discount{" "}
             <span className="font-bold text-green-700">{formatPrice(sampleDiscount)}</span>
           </p>
         </div>
@@ -247,13 +247,13 @@ export default function VoucherForm({ id, initial }: { id?: string; initial?: Vo
           className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#11120f] text-sm font-bold text-white hover:bg-black/80 disabled:opacity-60"
         >
           {saving && <Loader2 size={16} className="animate-spin" />}
-          {editing ? "Simpan perubahan" : "Buat voucher"}
+          {editing ? "Save changes" : "Create voucher"}
         </button>
         <Link
           href="/admin/vouchers"
           className="flex h-12 w-full items-center justify-center rounded-full border border-black/15 text-sm font-bold hover:bg-black/5"
         >
-          Batal
+          Cancel
         </Link>
       </aside>
     </form>

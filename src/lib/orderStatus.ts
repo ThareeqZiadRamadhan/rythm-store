@@ -1,9 +1,9 @@
 export const STATUS_LABEL = {
-  PENDING: "Menunggu konfirmasi",
-  PROCESSING: "Diproses",
-  SHIPPED: "Dikirim",
-  DELIVERED: "Selesai",
-  CANCELLED: "Dibatalkan",
+  PENDING: "Awaiting confirmation",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
 } as const;
 
 export type OrderStatus = keyof typeof STATUS_LABEL;
@@ -26,15 +26,15 @@ export const NEXT_STATUS: Record<OrderStatus, OrderStatus[]> = {
 };
 
 export const ACTION_LABEL: Record<OrderStatus, string> = {
-  PENDING: "Menunggu",
-  PROCESSING: "Proses pesanan",
-  SHIPPED: "Tandai dikirim",
-  DELIVERED: "Tandai selesai",
-  CANCELLED: "Batalkan",
+  PENDING: "Pending",
+  PROCESSING: "Process order",
+  SHIPPED: "Mark as shipped",
+  DELIVERED: "Mark as delivered",
+  CANCELLED: "Cancel",
 };
 
 export const PAYMENT_LABEL: Record<string, string> = {
-  TRANSFER: "Transfer bank",
+  TRANSFER: "Bank transfer",
   EWALLET: "E-wallet",
-  COD: "Bayar di tempat",
+  COD: "Cash on delivery",
 };

@@ -12,19 +12,19 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function stubLabel(v: VoucherDTO) {
   if (v.type === "PERCENT") return `${v.value}%`;
-  return v.value >= 1000 ? `Rp${Math.round(v.value / 1000)}rb` : formatPrice(v.value);
+  return v.value >= 1000 ? `Rp${Math.round(v.value / 1000)}K` : formatPrice(v.value);
 }
 
 function formatDate(iso: string | null) {
-  if (!iso) return "Tanpa batas waktu";
-  return new Date(iso).toLocaleDateString("id-ID", {
+  if (!iso) return "No expiry date";
+  return new Date(iso).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 }
 
-const statusText = { ACTIVE: "Aktif", USED: "Terpakai", EXPIRED: "Kedaluwarsa" } as const;
+const statusText = { ACTIVE: "Active", USED: "Used", EXPIRED: "Expired" } as const;
 
 function QuotaBar({ v }: { v: VoucherDTO }) {
   if (v.quota <= 0 || v.remaining === null) return null;
@@ -46,10 +46,10 @@ function QuotaBar({ v }: { v: VoucherDTO }) {
         }`}
       >
         {v.soldOut
-          ? "Kuota habis"
+          ? "Fully claimed"
           : low
-          ? `Tinggal ${v.remaining} lagi!`
-          : `Sisa ${v.remaining} dari ${v.quota}`}
+          ? `Only ${v.remaining} left!`
+          : `${v.remaining} of ${v.quota} left`}
       </p>
     </div>
   );
@@ -87,7 +87,7 @@ function VoucherCard({
       >
         <span className="text-2xl font-black leading-none tracking-tight">{stubLabel(v)}</span>
         <span className="mt-1 text-[11px] font-bold uppercase tracking-wider">
-          {v.type === "PERCENT" ? "Diskon" : "Potongan"}
+          {v.type === "PERCENT" ? "Discount" : "Off"}
         </span>
       </div>
 
@@ -96,9 +96,9 @@ function VoucherCard({
           <p className="truncate font-bold">{v.title}</p>
           {v.description && <p className="mt-0.5 text-sm text-black/55">{v.description}</p>}
           <p className="mt-2 text-xs text-black/45">
-            {v.minSpend > 0 && <>Min. belanja {formatPrice(v.minSpend)} · </>}
+            {v.minSpend > 0 && <>Min. spend {formatPrice(v.minSpend)} · </>}
             {v.type === "PERCENT" && v.maxDiscount > 0 && <>Maks. {formatPrice(v.maxDiscount)} · </>}
-            Berlaku s.d. {formatDate(v.expiresAt)}
+            Valid until {formatDate(v.expiresAt)}
           </p>
           <span className="mt-2 inline-block rounded-md bg-black/5 px-2 py-1 font-mono text-xs font-bold tracking-wider">
             {v.code}
@@ -109,7 +109,7 @@ function VoucherCard({
         {onClaim ? (
           v.soldOut ? (
             <span className="flex h-10 w-24 shrink-0 items-center justify-center self-start rounded-full bg-black/10 text-sm font-bold text-black/40 sm:self-center">
-              Habis
+              Gone
             </span>
           ) : (
             <button
@@ -123,7 +123,7 @@ function VoucherCard({
               {btn === "done" && (
                 <Check size={20} strokeWidth={3} style={{ animation: "vc-pop .35s ease-out" }} />
               )}
-              {btn === "idle" && "Klaim"}
+              {btn === "idle" && "Claim"}
             </button>
           )
         ) : (
@@ -175,7 +175,7 @@ export default function VoucherCenter({
 
       if (!res.ok) {
         setPhase(null);
-        setMsg({ ok: false, text: data.error ?? "Gagal mengklaim voucher." });
+        setMsg({ ok: false, text: data.error ?? "Could not claim the voucher." });
         // Muat ulang daftar supaya sisa kuota terbaru tampil
         if (res.status === 409) {
           const fresh = await fetch("/api/account/vouchers/list", { cache: "no-store" })
@@ -201,7 +201,7 @@ export default function VoucherCenter({
       setTimeout(() => setHighlightCode(null), 2200);
     } catch {
       setPhase(null);
-      setMsg({ ok: false, text: "Tidak bisa terhubung ke server." });
+      setMsg({ ok: false, text: "Could not connect to the server." });
     }
   }
 
@@ -222,12 +222,12 @@ export default function VoucherCenter({
         }}
         className="rounded-3xl bg-[#f7f7f2] p-6"
       >
-        <label className="mb-2 block text-sm font-bold">Punya kode voucher?</label>
+        <label className="mb-2 block text-sm font-bold">Have a voucher code?</label>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="Contoh: WELCOME10"
+            placeholder="e.g. WELCOME10"
             className="h-12 flex-1 rounded-lg border border-black/15 bg-white px-4 font-mono text-sm uppercase outline-none placeholder:normal-case placeholder:text-black/35 focus:border-black"
           />
           <button
@@ -238,7 +238,7 @@ export default function VoucherCenter({
             {phase?.step === "loading" && phase.code === code.trim() ? (
               <Loader2 size={18} className="animate-spin" />
             ) : (
-              "Klaim"
+              "Claim"
             )}
           </button>
         </div>
@@ -254,16 +254,16 @@ export default function VoucherCenter({
       </form>
 
       <section>
-        <h2 className="text-lg font-black">Voucher kamu</h2>
+        <h2 className="text-lg font-black">Your vouchers</h2>
         <div className="mt-4 space-y-4">
           {claimed.length === 0 ? (
             <div className="flex flex-col items-center rounded-2xl border border-dashed border-black/15 px-6 py-10 text-center">
               <div className="grid size-14 place-items-center rounded-full bg-black/5">
                 <Ticket size={22} strokeWidth={1.6} />
               </div>
-              <p className="mt-4 font-bold">Belum ada voucher</p>
+              <p className="mt-4 font-bold">No vouchers yet</p>
               <p className="mt-1 max-w-xs text-sm text-black/50">
-                Klaim voucher dari daftar di bawah atau masukkan kodenya di atas.
+                Claim a voucher from the list below or enter a code above.
               </p>
             </div>
           ) : (
@@ -276,8 +276,8 @@ export default function VoucherCenter({
 
       {available.length > 0 && (
         <section>
-          <h2 className="text-lg font-black">Voucher tersedia</h2>
-          <p className="mt-1 text-sm text-black/50">Klaim sekarang, pakai saat checkout.</p>
+          <h2 className="text-lg font-black">Available vouchers</h2>
+          <p className="mt-1 text-sm text-black/50">Claim now, use at checkout.</p>
           <div className="mt-4 space-y-4">
             {available.map((v) => (
               <VoucherCard

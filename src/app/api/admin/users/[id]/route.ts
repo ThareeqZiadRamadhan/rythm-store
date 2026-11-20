@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
 
 const onlyAdmin = () =>
-  NextResponse.json({ error: "Hanya akun admin yang bisa diubah atau dihapus di sini." }, { status: 403 });
+  NextResponse.json({ error: "Only admin accounts can be edited or deleted here." }, { status: 403 });
 
 /** Cek akses superadmin dan ID target. Akun sendiri tidak bisa diubah/dihapus dari panel ini. */
 async function guard(params: Ctx["params"]) {
@@ -21,19 +21,19 @@ async function guard(params: Ctx["params"]) {
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return { error: NextResponse.json({ error: "ID user tidak valid." }, { status: 400 }) };
+    return { error: NextResponse.json({ error: "Invalid user ID." }, { status: 400 }) };
   }
   if (id === g.admin.id) {
     return {
       error: NextResponse.json(
-        { error: "Kamu tidak bisa mengubah akunmu sendiri di sini. Gunakan halaman Akun." },
+        { error: "You cannot change your own account here. Use the Account page instead." },
         { status: 400 }
       ),
     };
   }
 
   const target = await User.findById(id).select("name email phone role isBlocked").lean();
-  if (!target) return { error: NextResponse.json({ error: "User tidak ditemukan." }, { status: 404 }) };
+  if (!target) return { error: NextResponse.json({ error: "User not found." }, { status: 404 }) };
 
   return { admin: g.admin, id, target };
 }
@@ -48,7 +48,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   // Blokir / aktifkan akun (pelanggan atau admin, tidak untuk superadmin)
   if ("isBlocked" in body) {
     if (target.role === "SUPERADMIN") {
-      return NextResponse.json({ error: "Akun superadmin tidak bisa diblokir." }, { status: 403 });
+      return NextResponse.json({ error: "Superadmin accounts cannot be blocked." }, { status: 403 });
     }
     const blocked = Boolean(body.isBlocked);
     if (Boolean(target.isBlocked) !== blocked) {
@@ -66,13 +66,13 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const { name, email, phone, password } = parsed.data;
 
   if (email !== target.email && (await User.exists({ email, _id: { $ne: id } }))) {
-    return NextResponse.json({ error: "Email sudah dipakai akun lain." }, { status: 409 });
+    return NextResponse.json({ error: "This email is already used by another account." }, { status: 409 });
   }
 
   const changes: string[] = [];
-  if (name !== target.name) changes.push("nama");
+  if (name !== target.name) changes.push("name");
   if (email !== target.email) changes.push(`email ${target.email} → ${email}`);
-  if (phone !== (target.phone ?? "")) changes.push("nomor HP");
+  if (phone !== (target.phone ?? "")) changes.push("phone number");
   if (password) changes.push("reset password");
   if (changes.length === 0) return NextResponse.json({ ok: true });
 
@@ -109,7 +109,7 @@ export async function DELETE(_req: Request, { params }: Ctx) {
     admin,
     "user.delete",
     target.email,
-    `${target.name}${deletedCount ? ` · ${deletedCount} ulasan ikut dihapus` : ""}`
+    `${target.name}${deletedCount ? ` · ${deletedCount} ${deletedCount === 1 ? "review" : "reviews"} also deleted` : ""}`
   );
   return NextResponse.json({ ok: true });
 }

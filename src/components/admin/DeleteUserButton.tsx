@@ -10,14 +10,14 @@ export default function DeleteUserButton({ id, email }: { id: string; email: str
 
   async function handleDelete() {
     const ok = window.confirm(
-      `Hapus akun admin ${email}?\n\nAkun langsung keluar dan tidak bisa login lagi. Tindakan ini tidak bisa dibatalkan.`
+      `Delete the admin account ${email}?\n\nIt will be signed out immediately and will not be able to sign in again. This cannot be undone.`
     );
     if (!ok) return;
     setBusy(true);
     const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (!res.ok) return window.alert(data.error ?? "Gagal menghapus akun.");
+    if (!res.ok) return window.alert(data.error ?? "Could not delete the account.");
     router.refresh();
   }
 
@@ -25,8 +25,8 @@ export default function DeleteUserButton({ id, email }: { id: string; email: str
     <button
       onClick={handleDelete}
       disabled={busy}
-      aria-label={`Hapus ${email}`}
-      title="Hapus akun"
+      aria-label={`Delete ${email}`}
+      title="Delete account"
       className="grid size-9 place-items-center rounded-full text-red-600 transition hover:bg-red-50 disabled:opacity-50"
     >
       {busy ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}

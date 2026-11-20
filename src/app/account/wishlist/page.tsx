@@ -30,7 +30,7 @@ export default async function WishlistPage() {
     <div>
       <h1 className="text-3xl font-black tracking-tight">Wishlist</h1>
       <p className="mb-8 mt-2 text-sm text-black/50">
-        {items.length > 0 ? `${items.length} sepatu yang kamu incar.` : "Sepatu yang kamu incar."}
+        {items.length > 0 ? `${items.length} ${items.length === 1 ? "pair" : "pairs"} you have your eye on.` : "The shoes you have your eye on."}
       </p>
       <WishlistGrid initial={items} />
     </div>

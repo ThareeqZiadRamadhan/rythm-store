@@ -10,7 +10,7 @@ export default function CancelOrderButton({ id, orderNumber }: { id: string; ord
 
   async function handleCancel() {
     const ok = window.confirm(
-      `Batalkan pesanan ${orderNumber}?\n\nStok dan voucher yang dipakai akan dikembalikan. Pesanan yang sudah dibatalkan tidak bisa diaktifkan lagi.`
+      `Cancel order ${orderNumber}?\n\nStock and any voucher used will be restored. A cancelled order cannot be reactivated.`
     );
     if (!ok) return;
 
@@ -18,7 +18,7 @@ export default function CancelOrderButton({ id, orderNumber }: { id: string; ord
     const res = await fetch(`/api/account/orders/${id}/cancel`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (!res.ok) window.alert(data.error ?? "Gagal membatalkan pesanan.");
+    if (!res.ok) window.alert(data.error ?? "Could not cancel the order.");
     router.refresh();
   }
 
@@ -29,7 +29,7 @@ export default function CancelOrderButton({ id, orderNumber }: { id: string; ord
       className="flex h-10 items-center gap-2 rounded-full border border-red-200 bg-white px-4 text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
     >
       {busy ? <Loader2 size={15} className="animate-spin" /> : <XCircle size={15} />}
-      Batalkan pesanan
+      Cancel order
     </button>
   );
 }

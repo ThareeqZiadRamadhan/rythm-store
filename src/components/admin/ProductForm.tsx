@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/data";
-import { CATEGORIES, GENDERS, SIZES, slugify, type ProductInput } from "@/lib/productInput";
+import { CATEGORIES, GENDER_LABEL, GENDERS, SIZES, slugify, type ProductInput } from "@/lib/productInput";
 
 const input =
   "h-11 w-full rounded-lg border border-black/15 bg-white px-3.5 text-sm outline-none transition focus:border-black";
@@ -85,14 +85,14 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Gagal menyimpan produk.");
+        setError(data.error ?? "Could not save the product.");
         setSaving(false);
         return;
       }
       router.push("/admin/products");
       router.refresh();
     } catch {
-      setError("Tidak bisa terhubung ke server.");
+      setError("Could not connect to the server.");
       setSaving(false);
     }
   }
@@ -100,12 +100,12 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div className="space-y-6">
-        <Card title="Info produk">
+        <Card title="Product info">
           <div className="grid gap-4 md:grid-cols-2">
-            <F label="Nama produk">
+            <F label="Product name">
               <input className={input} value={f.name} onChange={(e) => set("name", e.target.value)} />
             </F>
-            <F label="Slug" hint={`Alamat halaman: /shop/${f.slug || "..."}`}>
+            <F label="Slug" hint={`Page URL: /shop/${f.slug || "..."}`}>
               <input
                 className={input}
                 value={f.slug}
@@ -117,7 +117,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
             </F>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            <F label="Kategori">
+            <F label="Category">
               <select
                 className={input}
                 value={f.category}
@@ -135,16 +135,18 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
                 onChange={(e) => set("gender", e.target.value as typeof f.gender)}
               >
                 {GENDERS.map((g) => (
-                  <option key={g}>{g}</option>
+                  <option key={g} value={g}>
+                    {GENDER_LABEL[g]}
+                  </option>
                 ))}
               </select>
             </F>
-            <F label="Label" hint="Opsional, misal New atau Limited">
+            <F label="Label" hint="Optional, e.g. New or Limited">
               <input className={input} value={f.tag} onChange={(e) => set("tag", e.target.value)} />
             </F>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <F label="Harga jual (Rp)">
+            <F label="Selling price (Rp)">
               <input
                 className={input}
                 inputMode="numeric"
@@ -152,7 +154,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
                 onChange={(e) => set("price", e.target.value.replace(/\D/g, ""))}
               />
             </F>
-            <F label="Harga coret (Rp)" hint="Opsional, untuk produk diskon">
+            <F label="Original price (Rp)" hint="Optional, for discounted products">
               <input
                 className={input}
                 inputMode="numeric"
@@ -161,7 +163,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
               />
             </F>
           </div>
-          <F label="Deskripsi">
+          <F label="Description">
             <textarea
               className={area}
               rows={4}
@@ -169,7 +171,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
               onChange={(e) => set("description", e.target.value)}
             />
           </F>
-          <F label="Fitur" hint="Satu fitur per baris">
+          <F label="Features" hint="One feature per line">
             <textarea
               className={area}
               rows={4}
@@ -179,11 +181,11 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
           </F>
         </Card>
 
-        <Card title="Gambar dan warna">
-          <F label="URL gambar utama" hint="Misal /shoes/nama-produk.png atau URL Unsplash">
+        <Card title="Images and color">
+          <F label="Main image URL" hint="e.g. /shoes/product-name.png or an Unsplash URL">
             <input className={input} value={f.image} onChange={(e) => set("image", e.target.value)} />
           </F>
-          <F label="Galeri" hint="Satu URL per baris. Kosongkan untuk memakai gambar utama saja.">
+          <F label="Gallery" hint="One URL per line. Leave empty to use only the main image.">
             <textarea
               className={area}
               rows={3}
@@ -192,7 +194,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
             />
           </F>
           <div className="grid gap-4 md:grid-cols-2">
-            <F label="Warna latar">
+            <F label="Background color">
               <span className="flex gap-2">
                 <input
                   type="color"
@@ -203,18 +205,18 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
                 <input className={input} value={f.color} onChange={(e) => set("color", e.target.value)} />
               </span>
             </F>
-            <F label="Nama warna">
+            <F label="Color name">
               <input
                 className={input}
                 value={f.colorName}
                 onChange={(e) => set("colorName", e.target.value)}
-                placeholder="Misal Volt Green/Black"
+                placeholder="e.g. Volt Green/Black"
               />
             </F>
           </div>
         </Card>
 
-        <Card title="Stok per ukuran">
+        <Card title="Stock per size">
           <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
             {SIZES.map((size) => (
               <label key={size} className="block text-center">
@@ -230,7 +232,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
               </label>
             ))}
           </div>
-          <p className="text-sm text-black/55">Total stok: {totalStock} pasang</p>
+          <p className="text-sm text-black/55">Total stock: {totalStock} {totalStock === 1 ? "pair" : "pairs"}</p>
         </Card>
       </div>
 
@@ -243,7 +245,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
           </div>
           <div className="p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-black/45">{f.category}</p>
-            <p className="mt-1 font-bold">{f.name || "Nama produk"}</p>
+            <p className="mt-1 font-bold">{f.name || "Product name"}</p>
             <p className="mt-1 font-black">{f.price ? formatPrice(Number(f.price)) : "Rp 0"}</p>
           </div>
         </div>
@@ -255,7 +257,7 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
             onChange={(e) => set("isActive", e.target.checked)}
             className="size-5 accent-black"
           />
-          Tampilkan di toko
+          Show in store
         </label>
 
         {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
@@ -266,13 +268,13 @@ export default function ProductForm({ id, initial }: { id?: string; initial?: Pr
           className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#11120f] text-sm font-bold text-white hover:bg-black/80 disabled:opacity-60"
         >
           {saving && <Loader2 size={16} className="animate-spin" />}
-          {editing ? "Simpan perubahan" : "Tambah produk"}
+          {editing ? "Save changes" : "Add product"}
         </button>
         <Link
           href="/admin/products"
           className="flex h-12 w-full items-center justify-center rounded-full border border-black/15 text-sm font-bold hover:bg-black/5"
         >
-          Batal
+          Cancel
         </Link>
       </aside>
     </form>

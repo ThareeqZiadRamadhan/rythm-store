@@ -12,10 +12,10 @@ import { AccountMenu, MobileAccountLinks, useSession } from "@/components/Accoun
 import SearchButton from "@/components/SearchButton";
 
 const navItems = [
-  ["Koleksi", "/shop"],
-  ["Terbaru", "/new"],
-  ["Pria", "/men"],
-  ["Wanita", "/women"],
+  ["Shop", "/shop"],
+  ["New", "/new"],
+  ["Men", "/men"],
+  ["Women", "/women"],
   ["Sale", "/sale"],
 ];
 
@@ -23,18 +23,18 @@ const FOOTER_LINKS: { title: string; links: { label: string; href: string; exter
   {
     title: "Shop",
     links: [
-      { label: "Koleksi", href: "/shop" },
-      { label: "Terbaru", href: "/new" },
+      { label: "All shoes", href: "/shop" },
+      { label: "New arrivals", href: "/new" },
       { label: "Sale", href: "/sale" },
     ],
   },
   {
-    title: "Bantuan",
+    title: "Help",
     links: [
-      { label: "Lacak pesanan", href: "/account/orders" },
-      { label: "Cari ukuran", href: "/fit" },
-      { label: "Pengiriman", href: "/bantuan#pengiriman" },
-      { label: "Retur", href: "/bantuan#retur" },
+      { label: "Track order", href: "/account/orders" },
+      { label: "Find your size", href: "/fit" },
+      { label: "Shipping", href: "/help#shipping" },
+      { label: "Returns", href: "/help#returns" },
     ],
   },
   {
@@ -74,7 +74,7 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
             <button
               className="grid size-10 place-items-center rounded-full border border-black/15 lg:hidden"
               onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Buka menu"
+              aria-label="Open menu"
             >
               {menuOpen ? <X size={19} /> : <Menu size={19} />}
             </button>
@@ -109,7 +109,7 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
             <button
               className="relative grid size-10 place-items-center rounded-full transition-colors hover:bg-black/5"
               onClick={() => setCartOpen(true)}
-              aria-label="Keranjang"
+              aria-label="Cart"
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
@@ -151,7 +151,7 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
               RYTHM<span className="text-[#8daa13]">/</span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-6 text-black/50">
-              Independent sneaker label untuk mereka yang memilih jalannya sendiri.
+              An independent sneaker label for those who choose their own path.
             </p>
           </div>
           {FOOTER_LINKS.map((group) => (
@@ -184,19 +184,19 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
       {cartOpen && (
         <div className="fixed inset-0 z-50">
           <button
-            aria-label="Tutup keranjang"
+            aria-label="Close cart"
             className="absolute inset-0 bg-black/45 backdrop-blur-sm"
             onClick={() => setCartOpen(false)}
           />
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-[#f7f7f2] shadow-2xl">
             <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
               <div>
-                <h2 className="text-xl font-black">Keranjang kamu</h2>
-                <p className="mt-1 text-xs text-black/45">{cartCount} item dipilih</p>
+                <h2 className="text-xl font-black">Your cart</h2>
+                <p className="mt-1 text-xs text-black/45">{cartCount} {cartCount === 1 ? "item" : "items"}</p>
               </div>
               <button
                 onClick={() => setCartOpen(false)}
-                aria-label="Tutup keranjang"
+                aria-label="Close cart"
                 className="grid size-10 place-items-center rounded-full border border-black/10"
               >
                 <X size={19} />
@@ -208,16 +208,16 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
                   <div className="grid size-20 place-items-center rounded-full bg-black/5">
                     <ShoppingBag size={28} strokeWidth={1.5} />
                   </div>
-                  <h3 className="mt-6 text-xl font-black">Masih kosong.</h3>
+                  <h3 className="mt-6 text-xl font-black">Still empty.</h3>
                   <p className="mt-2 text-sm text-black/45">
-                    Sepatu incaranmu menunggu untuk diajak jalan.
+                    Your next pair is waiting to hit the road.
                   </p>
                   <Link
                     href="/shop"
                     onClick={() => setCartOpen(false)}
                     className="mt-6 rounded-full bg-black px-6 py-3 text-sm font-bold text-white"
                   >
-                    Mulai belanja
+                    Start shopping
                   </Link>
                 </div>
               ) : (
@@ -239,13 +239,13 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
                       <div className="flex flex-1 flex-col justify-between py-1">
                         <div>
                           <h3 className="font-bold">{item.name}</h3>
-                          <p className="mt-1 text-xs text-black/45">Size {item.size}</p>
+                          <p className="mt-1 text-xs text-black/45">Size EU {item.size}</p>
                         </div>
                         <div className="flex items-end justify-between">
                           <div className="flex items-center rounded-full border border-black/15">
                             <button
                               onClick={() => updateCart(item.slug, item.size, -1)}
-                              aria-label="Kurangi"
+                              aria-label="Decrease"
                               className="grid size-8 place-items-center"
                             >
                               <Minus size={13} />
@@ -253,7 +253,7 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
                             <span className="w-6 text-center text-xs font-bold">{item.quantity}</span>
                             <button
                               onClick={() => updateCart(item.slug, item.size, 1)}
-                              aria-label="Tambah"
+                              aria-label="Increase"
                               className="grid size-8 place-items-center"
                             >
                               <Plus size={13} />
@@ -273,10 +273,10 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
                   <Truck size={15} />{" "}
                   {settings.shippingFee === 0 ||
                   (settings.freeShippingMin > 0 && subtotal >= settings.freeShippingMin)
-                    ? "Pesananmu bebas ongkir"
+                    ? "Your order ships free"
                     : settings.freeShippingMin > 0
-                      ? `Tambah ${formatPrice(settings.freeShippingMin - subtotal)} lagi untuk gratis ongkir`
-                      : `Ongkir ${formatPrice(settings.shippingFee)} per pesanan`}
+                      ? `Add ${formatPrice(settings.freeShippingMin - subtotal)} more for free shipping`
+                      : `Shipping ${formatPrice(settings.shippingFee)} per order`}
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">Subtotal</span>
@@ -287,7 +287,7 @@ function Shell({ children, settings }: { children: ReactNode; settings: PublicSe
                   onClick={() => setCartOpen(false)}
                   className="mt-5 flex w-full items-center justify-center gap-3 rounded-full bg-[#c7ea4c] px-6 py-4 font-black"
                 >
-                  Lanjut checkout <ArrowRight size={18} />
+                  Checkout <ArrowRight size={18} />
                 </Link>
               </div>
             )}

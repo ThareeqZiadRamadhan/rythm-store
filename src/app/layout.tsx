@@ -5,16 +5,16 @@ import Layout from "@/components/Layout";
 
 
 export const metadata: Metadata = {
-  title: "RYTHM/ — Toko Sepatu",
+  title: "RYTHM/ — Sneaker Store",
   description:
-    "Jelajahi dan beli sepatu kekinian melalui toko online yang menarik, dengan pilihan gaya untuk membantu Anda menemukan pasangan yang tepat.",
+    "Browse and buy modern sneakers from an independent online store, with styles to help you find the perfect pair.",
   robots: { index: false },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSettings();
   return (
-    <html lang="id">
+    <html lang="en">
       <body>
         <Layout settings={settings}>{children}</Layout>
       </body>

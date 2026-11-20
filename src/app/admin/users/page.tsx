@@ -6,7 +6,7 @@ import Order from "@/models/Order";
 import BlockUserButton from "@/components/admin/BlockUserButton";
 import DeleteUserButton from "@/components/admin/DeleteUserButton";
 
-export const metadata = { title: "Pengguna — Admin RYTHM" };
+export const metadata = { title: "Users — Admin RYTHM" };
 export const dynamic = "force-dynamic";
 
 type Row = {
@@ -19,13 +19,13 @@ type Row = {
   createdAt: Date;
 };
 
-const ROLE_LABEL: Record<string, string> = { USER: "Pelanggan", ADMIN: "Admin", SUPERADMIN: "Superadmin" };
+const ROLE_LABEL: Record<string, string> = { USER: "Customer", ADMIN: "Admin", SUPERADMIN: "Superadmin" };
 
 const th = "px-4 py-3 font-bold";
 const td = "px-4 py-3";
 
 function joined(d: Date) {
-  return new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function Identity({ u }: { u: Row }) {
@@ -53,7 +53,7 @@ function Status({ blocked }: { blocked: boolean }) {
     <span
       className={`rounded-full px-3 py-1 text-xs font-bold ${blocked ? "bg-red-100 text-red-700" : "bg-[#c7ea4c]"}`}
     >
-      {blocked ? "Diblokir" : "Aktif"}
+      {blocked ? "Blocked" : "Active"}
     </span>
   );
 }
@@ -85,9 +85,9 @@ export default async function AdminUsers() {
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Pengguna</h1>
+      <h1 className="text-3xl font-black tracking-tight">Users</h1>
       <p className="mt-2 text-sm text-black/50">
-        Superadmin mengelola akun admin. Pelanggan mendaftar sendiri lewat halaman Daftar.
+        Superadmins manage admin accounts. Customers sign up themselves through the Sign up page.
       </p>
 
       {/* ---------- Admin ---------- */}
@@ -95,13 +95,13 @@ export default async function AdminUsers() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="text-xl font-black tracking-tight">Admin</h2>
-            <p className="mt-1 text-sm text-black/50">{staff.length - 1} akun admin</p>
+            <p className="mt-1 text-sm text-black/50">{staff.length - 1} admin {staff.length - 1 === 1 ? "account" : "accounts"}</p>
           </div>
           <Link
             href="/admin/users/new"
             className="flex items-center gap-2 rounded-full bg-[#11120f] px-5 py-3 text-sm font-bold text-white hover:bg-black/80"
           >
-            <Plus size={16} /> Tambah admin
+            <Plus size={16} /> Add admin
           </Link>
         </div>
 
@@ -109,12 +109,12 @@ export default async function AdminUsers() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-[#f7f7f2] text-xs uppercase tracking-wider text-black/50">
               <tr>
-                <th className={th}>Nama</th>
-                <th className={th}>Kontak</th>
+                <th className={th}>Name</th>
+                <th className={th}>Contact</th>
                 <th className={th}>Role</th>
-                <th className={th}>Dibuat</th>
+                <th className={th}>Created</th>
                 <th className={th}>Status</th>
-                <th className={`${th} text-right`}>Aksi</th>
+                <th className={`${th} text-right`}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/10">
@@ -128,7 +128,7 @@ export default async function AdminUsers() {
                     <Contact u={u} />
                     <td className={`${td} font-semibold`}>
                       {ROLE_LABEL[u.role]}
-                      {self && <span className="font-normal text-black/50"> (kamu)</span>}
+                      {self && <span className="font-normal text-black/50"> (you)</span>}
                     </td>
                     <td className={`${td} text-black/60`}>{joined(u.createdAt)}</td>
                     <td className={td}>
@@ -143,7 +143,7 @@ export default async function AdminUsers() {
                             <Link
                               href={`/admin/users/${u.id}`}
                               aria-label={`Edit ${u.email}`}
-                              title="Edit akun"
+                              title="Edit account"
                               className="grid size-9 place-items-center rounded-full text-black/70 transition hover:bg-black/5"
                             >
                               <Pencil size={16} />
@@ -164,27 +164,27 @@ export default async function AdminUsers() {
 
       {/* ---------- Pelanggan ---------- */}
       <section className="mt-12">
-        <h2 className="text-xl font-black tracking-tight">Pelanggan</h2>
+        <h2 className="text-xl font-black tracking-tight">Customers</h2>
         <p className="mt-1 text-sm text-black/50">
-          {customers.length} akun{blockedCustomers > 0 ? ` · ${blockedCustomers} diblokir` : ""}. Akun pelanggan
-          hanya bisa diblokir atau diaktifkan kembali.
+          {customers.length} {customers.length === 1 ? "account" : "accounts"}
+          {blockedCustomers > 0 ? ` · ${blockedCustomers} blocked` : ""}. Customer accounts can only be blocked or unblocked.
         </p>
 
         {customers.length === 0 ? (
           <p className="mt-4 rounded-2xl border border-dashed border-black/15 p-10 text-center text-sm text-black/50">
-            Belum ada pelanggan yang mendaftar.
+            No customers have signed up yet.
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-2xl border border-black/10">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="bg-[#f7f7f2] text-xs uppercase tracking-wider text-black/50">
                 <tr>
-                  <th className={th}>Nama</th>
-                  <th className={th}>Kontak</th>
-                  <th className={th}>Pesanan</th>
-                  <th className={th}>Bergabung</th>
+                  <th className={th}>Name</th>
+                  <th className={th}>Contact</th>
+                  <th className={th}>Orders</th>
+                  <th className={th}>Joined</th>
                   <th className={th}>Status</th>
-                  <th className={`${th} text-right`}>Aksi</th>
+                  <th className={`${th} text-right`}>Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">

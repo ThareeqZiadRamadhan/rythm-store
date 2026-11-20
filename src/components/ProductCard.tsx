@@ -17,7 +17,7 @@ function Badge({ product, soldOut }: { product: Product; soldOut: boolean }) {
   if (soldOut) {
     return (
       <span className="rounded-full bg-[#11120f] px-3.5 py-1.5 text-[13px] font-medium text-white">
-        Stok habis
+        Sold out
       </span>
     );
   }
@@ -29,7 +29,7 @@ function Badge({ product, soldOut }: { product: Product; soldOut: boolean }) {
     );
   }
   if (!product.tag) return null;
-  const isNew = /new|baru/i.test(product.tag);
+  const isNew = /new/i.test(product.tag);
   return (
     <span className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-[13px] font-medium text-[#111]">
       <span className={`h-2 w-2 rounded-full ${isNew ? "bg-[#e5483b]" : "bg-[#111]"}`} />
@@ -90,7 +90,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {soldOut ? (
           <span className="shrink-0 rounded-full bg-black/[0.06] px-5 py-3 text-[15px] font-medium text-black/40">
-            Habis
+            Sold out
           </span>
         ) : (
           <Link

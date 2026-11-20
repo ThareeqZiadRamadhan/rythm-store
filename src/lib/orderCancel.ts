@@ -23,7 +23,7 @@ export async function restoreCancelledOrder(order: CancelledOrder): Promise<stri
       { $inc: { "variants.$.stock": it.quantity } }
     );
   }
-  let note = "; stok dikembalikan";
+  let note = "; stock restored";
 
   if (order.voucherCode) {
     const v = await Voucher.findOne({ code: order.voucherCode }).select("_id").lean();
@@ -32,7 +32,7 @@ export async function restoreCancelledOrder(order: CancelledOrder): Promise<stri
         { _id: order.user, "vouchers.voucher": v._id },
         { $unset: { "vouchers.$.usedAt": "" } }
       );
-      note += `, voucher ${order.voucherCode} dikembalikan`;
+      note += `, voucher ${order.voucherCode} restored`;
     }
   }
   return note;

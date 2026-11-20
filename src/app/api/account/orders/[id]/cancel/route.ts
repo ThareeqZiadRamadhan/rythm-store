@@ -14,12 +14,12 @@ export const dynamic = "force-dynamic";
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID pesanan tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid order ID." }, { status: 400 });
   }
 
   try {
@@ -36,14 +36,14 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     if (!order) {
       const exists = await Order.findOne({ _id: id, user: session.sub }).select("status").lean();
       if (!exists) {
-        return NextResponse.json({ error: "Pesanan tidak ditemukan." }, { status: 404 });
+        return NextResponse.json({ error: "Order not found." }, { status: 404 });
       }
       return NextResponse.json(
         {
           error:
             exists.status === "CANCELLED"
-              ? "Pesanan ini sudah dibatalkan."
-              : "Pesanan sudah diproses toko sehingga tidak bisa dibatalkan.",
+              ? "This order has already been cancelled."
+              : "The store has already started processing this order, so it can no longer be cancelled.",
         },
         { status: 409 }
       );
@@ -53,6 +53,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ status: "CANCELLED" });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

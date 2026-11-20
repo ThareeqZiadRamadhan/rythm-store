@@ -66,6 +66,9 @@ export async function searchProducts(query: string, limit = 100): Promise<Produc
   if (!term) return [];
   await connectDB();
   const re = new RegExp(escapeRegex(term), "i");
+  // Gender is stored as "Pria"/"Wanita" in the database, so map English search terms to it.
+  const genderAlias: Record<string, "Pria" | "Wanita"> = { men: "Pria", "men's": "Pria", man: "Pria", women: "Wanita", "women's": "Wanita", woman: "Wanita" };
+  const alias = genderAlias[term.toLowerCase()];
   const docs = await ProductModel.find({
     isActive: true,
     $or: [
@@ -75,6 +78,7 @@ export async function searchProducts(query: string, limit = 100): Promise<Produc
       { colorName: re },
       { tag: re },
       { description: re },
+      ...(alias ? [{ gender: alias }] : []),
     ],
   })
     .sort({ createdAt: 1, _id: 1 })

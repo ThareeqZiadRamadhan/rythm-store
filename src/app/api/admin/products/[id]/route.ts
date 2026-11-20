@@ -19,7 +19,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID produk tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid product ID." }, { status: 400 });
   }
 
   try {
@@ -28,30 +28,30 @@ export async function PATCH(req: Request, { params }: Ctx) {
     const d = parsed.data;
 
     if (await Product.exists({ slug: d.slug, _id: { $ne: id } })) {
-      return NextResponse.json({ error: "Slug sudah dipakai produk lain." }, { status: 409 });
+      return NextResponse.json({ error: "This slug is already used by another product." }, { status: 409 });
     }
 
     const before = await Product.findById(id).lean();
-    if (!before) return NextResponse.json({ error: "Produk tidak ditemukan." }, { status: 404 });
+    if (!before) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
     await Product.updateOne({ _id: id }, { $set: d });
 
     // Susun ringkasan perubahan untuk log
     const changes: string[] = [];
-    if (before.name !== d.name) changes.push(`nama "${before.name}" → "${d.name}"`);
-    if (before.price !== d.price) changes.push(`harga ${money(before.price)} → ${money(d.price)}`);
+    if (before.name !== d.name) changes.push(`name "${before.name}" → "${d.name}"`);
+    if (before.price !== d.price) changes.push(`price ${money(before.price)} → ${money(d.price)}`);
     if ((before.oldPrice ?? null) !== d.oldPrice) {
-      changes.push(`harga coret ${money(before.oldPrice)} → ${money(d.oldPrice)}`);
+      changes.push(`original price ${money(before.oldPrice)} → ${money(d.oldPrice)}`);
     }
     if (Boolean(before.isActive) !== d.isActive) {
-      changes.push(d.isActive ? "ditampilkan di toko" : "disembunyikan dari toko");
+      changes.push(d.isActive ? "shown in store" : "hidden from store");
     }
     const stockChanges = SIZES.flatMap((size) => {
       const prev = before.variants?.find((v) => v.size === size)?.stock ?? 0;
       const next = d.variants.find((v) => v.size === size)?.stock ?? 0;
       return prev === next ? [] : [`EU ${size}: ${prev} → ${next}`];
     });
-    if (stockChanges.length) changes.push(`stok ${stockChanges.join(", ")}`);
+    if (stockChanges.length) changes.push(`stock ${stockChanges.join(", ")}`);
     const otherChanged =
       before.category !== d.category ||
       before.gender !== d.gender ||
@@ -59,7 +59,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
       (before.description ?? "") !== d.description ||
       (before.tag ?? "") !== d.tag ||
       (before.colorName ?? "") !== d.colorName;
-    if (otherChanged) changes.push("detail produk");
+    if (otherChanged) changes.push("product details");
 
     if (changes.length) {
       await logActivity(g.admin, "product.update", d.name, changes.join("; "));
@@ -68,7 +68,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ id });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }
 
@@ -78,12 +78,12 @@ export async function DELETE(_req: Request, { params }: Ctx) {
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID produk tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid product ID." }, { status: 400 });
   }
 
   try {
     const deleted = await Product.findByIdAndDelete(id);
-    if (!deleted) return NextResponse.json({ error: "Produk tidak ditemukan." }, { status: 404 });
+    if (!deleted) return NextResponse.json({ error: "Product not found." }, { status: 404 });
 
     await User.updateMany({ wishlist: deleted._id }, { $pull: { wishlist: deleted._id } });
     await mongoose.connection.collection("reviews").deleteMany({ product: deleted._id });
@@ -92,6 +92,6 @@ export async function DELETE(_req: Request, { params }: Ctx) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

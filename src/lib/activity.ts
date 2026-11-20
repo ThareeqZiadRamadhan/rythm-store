@@ -19,6 +19,6 @@ export async function logActivity(
       detail,
     });
   } catch (err) {
-    console.error("Gagal mencatat aktivitas:", err);
+    console.error("Failed to log activity:", err);
   }
 }

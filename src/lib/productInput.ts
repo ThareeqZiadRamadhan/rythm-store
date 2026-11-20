@@ -1,5 +1,7 @@
 export const CATEGORIES = ["Running", "Lifestyle", "Training"] as const;
 export const GENDERS = ["Pria", "Wanita", "Unisex"] as const;
+/** Gender values stay in Indonesian in the database; this is what the UI shows. */
+export const GENDER_LABEL: Record<string, string> = { Pria: "Men", Wanita: "Women", Unisex: "Unisex" };
 export const SIZES = [38, 39, 40, 41, 42, 43, 44, 45];
 
 export type Category = (typeof CATEGORIES)[number];
@@ -43,28 +45,28 @@ export function parseProductInput(raw: unknown): { data: ProductInput } | { erro
   const b = (raw ?? {}) as Record<string, unknown>;
 
   const name = str(b.name);
-  if (name.length < 2) return { error: "Nama produk minimal 2 karakter." };
+  if (name.length < 2) return { error: "Product name must be at least 2 characters." };
 
   const slug = slugify(str(b.slug) || name);
-  if (!slug) return { error: "Slug tidak valid." };
+  if (!slug) return { error: "Invalid slug." };
 
   const category = str(b.category);
-  if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Pilih kategori." };
+  if (!(CATEGORIES as readonly string[]).includes(category)) return { error: "Please choose a category." };
 
   const gender = str(b.gender);
-  if (!(GENDERS as readonly string[]).includes(gender)) return { error: "Pilih gender." };
+  if (!(GENDERS as readonly string[]).includes(gender)) return { error: "Please choose a gender." };
 
   const price = Math.round(Number(b.price));
-  if (!(price > 0)) return { error: "Harga harus lebih dari 0." };
+  if (!(price > 0)) return { error: "Price must be greater than 0." };
 
   const oldRaw = str(b.oldPrice);
   const oldPrice = oldRaw === "" ? null : Math.round(Number(oldRaw));
   if (oldPrice !== null && !(oldPrice > price)) {
-    return { error: "Harga coret harus lebih besar dari harga jual." };
+    return { error: "The original price must be higher than the selling price." };
   }
 
   const image = str(b.image);
-  if (!image) return { error: "URL gambar utama wajib diisi." };
+  if (!image) return { error: "The main image URL is required." };
 
   const gallery = lines(b.gallery);
   const variantsRaw = (Array.isArray(b.variants) ? b.variants : []) as {

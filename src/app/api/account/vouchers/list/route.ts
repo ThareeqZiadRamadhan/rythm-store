@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+  if (!session) return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   await connectDB();
   return NextResponse.json(await getVoucherLists(session.sub));
 }

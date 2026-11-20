@@ -43,7 +43,7 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
     e.preventDefault();
     setError("");
     if (!editing || f.password) {
-      if (f.password.length < 8) return setError("Password minimal 8 karakter.");
+      if (f.password.length < 8) return setError("Password must be at least 8 characters.");
     }
     setSaving(true);
     try {
@@ -54,14 +54,14 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Gagal menyimpan akun admin.");
+        setError(data.error ?? "Could not save the admin account.");
         setSaving(false);
         return;
       }
       router.push("/admin/users");
       router.refresh();
     } catch {
-      setError("Tidak bisa terhubung ke server.");
+      setError("Could not connect to the server.");
       setSaving(false);
     }
   }
@@ -69,7 +69,7 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <section className="space-y-4 rounded-3xl bg-[#f7f7f2] p-6">
-        <F label="Nama lengkap">
+        <F label="Full name">
           <input
             className={input}
             value={f.name}
@@ -86,11 +86,11 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
               className={input}
               value={f.email}
               onChange={(e) => set("email", e.target.value)}
-              placeholder="budi@contoh.com"
+              placeholder="budi@example.com"
               required
             />
           </F>
-          <F label="Nomor HP" hint="Contoh: 081234567890 atau +6281234567890.">
+          <F label="Phone number" hint="e.g. 081234567890 or +6281234567890.">
             <input
               type="tel"
               className={input}
@@ -103,11 +103,11 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
         </div>
 
         <F
-          label={editing ? "Password baru" : "Password"}
+          label={editing ? "New password" : "Password"}
           hint={
             editing
-              ? "Kosongkan kalau tidak ingin mengganti password. Minimal 8 karakter."
-              : "Minimal 8 karakter. Berikan ke admin tersebut agar bisa login."
+              ? "Leave empty to keep the current password. At least 8 characters."
+              : "At least 8 characters. Share it with the admin so they can sign in."
           }
         >
           <div className="relative">
@@ -122,7 +122,7 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
             <button
               type="button"
               onClick={() => setShowPw((s) => !s)}
-              aria-label={showPw ? "Sembunyikan password" : "Tampilkan password"}
+              aria-label={showPw ? "Hide password" : "Show password"}
               className="absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-md text-black/50 hover:bg-black/5"
             >
               {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -131,9 +131,9 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
         </F>
 
         <p className="rounded-2xl border border-black/10 bg-white p-4 text-xs text-black/55">
-          <span className="font-bold text-black">Hak akses admin:</span> dashboard, kelola produk & stok, proses
-          pesanan, dan moderasi ulasan. Admin tidak bisa mengelola voucher, pengguna, pengaturan toko, dan log
-          aktivitas.
+          <span className="font-bold text-black">Admin permissions:</span> dashboard, products & stock, order
+          processing and review moderation. Admins cannot manage vouchers, users, store settings or the activity
+          log.
         </p>
       </section>
 
@@ -143,7 +143,7 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
             {(f.name.trim().charAt(0) || "?").toUpperCase()}
           </span>
           <div className="min-w-0">
-            <p className="truncate font-bold">{f.name || "Nama admin"}</p>
+            <p className="truncate font-bold">{f.name || "Admin name"}</p>
             <p className="truncate text-xs text-black/50">{f.email || "email@contoh.com"}</p>
             <span className="mt-1 inline-block rounded-full bg-[#c7ea4c] px-2.5 py-0.5 text-[11px] font-bold">
               Admin
@@ -159,13 +159,13 @@ export default function UserForm({ id, initial }: { id?: string; initial?: UserF
           className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#11120f] text-sm font-bold text-white hover:bg-black/80 disabled:opacity-60"
         >
           {saving && <Loader2 size={16} className="animate-spin" />}
-          {editing ? "Simpan perubahan" : "Tambah admin"}
+          {editing ? "Save changes" : "Add admin"}
         </button>
         <Link
           href="/admin/users"
           className="flex h-12 w-full items-center justify-center rounded-full border border-black/15 text-sm font-bold hover:bg-black/5"
         >
-          Batal
+          Cancel
         </Link>
       </aside>
     </form>

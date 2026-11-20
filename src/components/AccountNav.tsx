@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { Heart, Package, Settings, Ticket, User } from "lucide-react";
 
 const items = [
-  { href: "/account", label: "Profil", icon: User },
-  { href: "/account/orders", label: "Pesanan saya", icon: Package },
+  { href: "/account", label: "Profile", icon: User },
+  { href: "/account/orders", label: "My orders", icon: Package },
   { href: "/account/wishlist", label: "Wishlist", icon: Heart },
-  { href: "/account/vouchers", label: "Voucher saya", icon: Ticket },
-  { href: "/account/settings", label: "Pengaturan", icon: Settings },
+  { href: "/account/vouchers", label: "My vouchers", icon: Ticket },
+  { href: "/account/settings", label: "Settings", icon: Settings },
 ];
 
 export default function AccountNav() {
@@ -17,7 +17,7 @@ export default function AccountNav() {
 
   return (
     <nav
-      aria-label="Menu akun"
+      aria-label="Account menu"
       className="flex gap-2 overflow-x-auto rounded-3xl border border-black/10 bg-white p-3 md:sticky md:top-28 md:flex-col md:gap-1 md:overflow-visible"
     >
       {items.map(({ href, label, icon: Icon }) => {

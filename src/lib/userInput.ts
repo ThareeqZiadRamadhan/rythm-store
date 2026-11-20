@@ -21,14 +21,14 @@ export function parseAdminInput(
   const email = String(body.email ?? "").trim().toLowerCase();
   const password = String(body.password ?? "");
 
-  if (name.length < 2 || name.length > 60) return { error: "Nama wajib diisi (2–60 karakter)." };
-  if (!/^\S+@\S+\.\S+$/.test(email)) return { error: "Format email belum benar." };
+  if (name.length < 2 || name.length > 60) return { error: "Name is required (2–60 characters)." };
+  if (!/^\S+@\S+\.\S+$/.test(email)) return { error: "Please enter a valid email address." };
 
   const phone = normalizePhone(String(body.phone ?? "").trim());
-  if (!phone) return { error: "Nomor HP belum benar. Contoh: 081234567890." };
+  if (!phone) return { error: "Please enter a valid phone number, e.g. 081234567890." };
 
   if (opts.requirePassword || password) {
-    if (password.length < 8) return { error: "Password minimal 8 karakter." };
+    if (password.length < 8) return { error: "Password must be at least 8 characters." };
   }
 
   return { data: { name, email, phone, password } };

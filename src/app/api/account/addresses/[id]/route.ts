@@ -18,12 +18,12 @@ async function currentList(userId: string) {
 export async function PATCH(_req: Request, { params }: Ctx) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID alamat tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid address ID." }, { status: 400 });
   }
 
   try {
@@ -39,7 +39,7 @@ export async function PATCH(_req: Request, { params }: Ctx) {
     return NextResponse.json({ addresses: await currentList(session.sub) });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }
 
@@ -47,12 +47,12 @@ export async function PATCH(_req: Request, { params }: Ctx) {
 export async function DELETE(_req: Request, { params }: Ctx) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID alamat tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid address ID." }, { status: 400 });
   }
 
   try {
@@ -72,6 +72,6 @@ export async function DELETE(_req: Request, { params }: Ctx) {
     return NextResponse.json({ addresses: list });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

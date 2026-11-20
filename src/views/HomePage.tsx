@@ -21,33 +21,33 @@ import type { Product } from "@/lib/catalog-types";
 
 
 const perks = [
-  { icon: Truck, title: "Gratis ongkir", text: "Untuk pembelian mulai Rp999 ribu" },
-  { icon: RefreshCw, title: "Tukar size mudah", text: "Jaminan penukaran hingga 14 hari" },
-  { icon: ShieldCheck, title: "Produk autentik", text: "100% original, tanpa kompromi" },
+  { icon: Truck, title: "Free shipping", text: "On orders from Rp999K" },
+  { icon: RefreshCw, title: "Easy size exchange", text: "Swap your size within 14 days" },
+  { icon: ShieldCheck, title: "Authentic products", text: "100% original, no compromises" },
 ];
 
 const steps = [
   {
     icon: Search,
-    title: "Pilih sepatu",
-    text: "Jelajahi koleksi, lihat foto dan detail produk dengan jelas.",
+    title: "Pick your shoes",
+    text: "Browse the collection and see every photo and product detail up close.",
   },
   {
     icon: Ruler,
-    title: "Pilih ukuran",
-    text: "Tentukan size EU 38–45. Salah ukuran? Bisa ditukar dalam 14 hari.",
+    title: "Choose your size",
+    text: "Pick from EU 38–45. Wrong size? Exchange it within 14 days.",
   },
   {
     icon: PackageCheck,
-    title: "Bayar dan terima",
-    text: "Selesaikan pesanan, pesananmu kami kemas dan kirim ke alamatmu.",
+    title: "Pay and receive",
+    text: "Complete your order and we will pack it and ship it to your door.",
   },
 ];
 
 const memberBenefits = [
-  { icon: Zap, title: "Akses lebih awal", text: "Beli rilisan terbatas sebelum dibuka untuk umum." },
-  { icon: Percent, title: "Voucher member", text: "Potongan khusus yang bisa diklaim di akunmu." },
-  { icon: Bell, title: "Wishlist tersimpan", text: "Simpan sepatu incaran, buka dari perangkat mana saja." },
+  { icon: Zap, title: "Early access", text: "Shop limited releases before they go public." },
+  { icon: Percent, title: "Member vouchers", text: "Exclusive discounts you can claim in your account." },
+  { icon: Bell, title: "Saved wishlist", text: "Save the pairs you love and open them on any device." },
 ];
 
 function SectionHeading({
@@ -74,7 +74,7 @@ function SectionHeading({
           href={href}
           className="hidden items-center gap-2 text-sm font-bold underline-offset-4 hover:underline md:flex"
         >
-          Lihat semua <ArrowRight size={18} />
+          View all <ArrowRight size={18} />
         </Link>
       )}
     </div>
@@ -87,9 +87,9 @@ export default function HomePage({ products }: { products: Product[] }) {
     return (list.find(match) ?? products[0])?.image;
   };
   const categoryTiles = [
-    { label: "Pria", href: "/men", image: pick((p) => p.gender === "Pria"), sale: false },
-    { label: "Wanita", href: "/women", image: pick((p) => p.gender === "Wanita"), sale: false },
-    { label: "Terbaru", href: "/new", image: pick((p) => p.tag === "New", true), sale: false },
+    { label: "Men", href: "/men", image: pick((p) => p.gender === "Pria"), sale: false },
+    { label: "Women", href: "/women", image: pick((p) => p.gender === "Wanita"), sale: false },
+    { label: "New", href: "/new", image: pick((p) => p.tag === "New", true), sale: false },
     { label: "Sale", href: "/sale", image: pick((p) => Boolean(p.oldPrice)), sale: true },
   ].filter((t): t is { label: string; href: string; image: string; sale: boolean } => Boolean(t.image));
 
@@ -118,7 +118,7 @@ export default function HomePage({ products }: { products: Product[] }) {
 
       {/* 3. Produk */}
       <section className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
-        <SectionHeading eyebrow="Curated for you" title="Lagi banyak dicari" href="/shop" />
+        <SectionHeading eyebrow="Curated for you" title="Trending now" href="/shop" />
         <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-10 lg:grid-cols-4">
           {products.slice(0, 4).map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -128,13 +128,13 @@ export default function HomePage({ products }: { products: Product[] }) {
           href="/shop"
           className="mt-10 flex items-center justify-center gap-2 text-sm font-bold underline-offset-4 hover:underline md:hidden"
         >
-          Lihat semua <ArrowRight size={18} />
+          View all <ArrowRight size={18} />
         </Link>
       </section>
 
       {/* 4. Kategori */}
       <section className="mx-auto max-w-[1440px] px-5 pb-16 md:px-10 md:pb-24">
-        <SectionHeading eyebrow="Jelajahi" title="Belanja per kategori" />
+        <SectionHeading eyebrow="Explore" title="Shop by category" />
         <div className="mt-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {categoryTiles.map((tile) => (
             <Link
@@ -169,7 +169,7 @@ export default function HomePage({ products }: { products: Product[] }) {
       {/* 5. Cara belanja */}
       <section className="border-y border-black/10 bg-white">
         <div className="mx-auto max-w-[1440px] px-5 py-16 md:px-10 md:py-24">
-          <SectionHeading eyebrow="Mudah" title="Cara belanja" />
+          <SectionHeading eyebrow="Easy" title="How to shop" />
           <div className="mt-10 grid gap-px bg-black/10 md:grid-cols-3">
             {steps.map(({ icon: Icon, title, text }, i) => (
               <div key={title} className="bg-white p-8 md:p-10">
@@ -192,7 +192,7 @@ export default function HomePage({ products }: { products: Product[] }) {
         <div className="grid overflow-hidden bg-[#111] text-white lg:grid-cols-[0.8fr_1.2fr]">
           <img
             src="https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=1200&q=85"
-            alt="Sepatu klasik dalam koleksi RYTHM"
+            alt="Classic sneakers from the RYTHM collection"
             className="h-64 w-full object-cover lg:h-full lg:min-h-[420px]"
           />
           <div className="flex flex-col justify-center px-6 py-10 md:px-12 md:py-12">
@@ -200,10 +200,10 @@ export default function HomePage({ products }: { products: Product[] }) {
               RYTHM Circle
             </span>
             <h2 className="mt-4 max-w-lg font-display text-4xl font-normal uppercase leading-[0.95] md:text-5xl">
-              Gabung jadi member RYTHM.
+              Become a RYTHM member.
             </h2>
             <p className="mt-4 max-w-md text-sm leading-6 text-white/60 md:text-base">
-              Daftar gratis untuk voucher member, wishlist yang tersimpan, dan riwayat pesanan.
+              Sign up for free to get member vouchers, a saved wishlist and your order history.
             </p>
 
             <ul className="mt-6 grid gap-4 sm:grid-cols-3">

@@ -7,7 +7,7 @@ import User from "@/models/User";
 import Order from "@/models/Order";
 import VoucherRowActions from "@/components/admin/VoucherRowActions";
 
-export const metadata = { title: "Voucher — Admin RYTHM" };
+export const metadata = { title: "Vouchers — Admin RYTHM" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminVouchers() {
@@ -40,16 +40,16 @@ export default async function AdminVouchers() {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">Voucher</h1>
+          <h1 className="text-3xl font-black tracking-tight">Vouchers</h1>
           <p className="mt-2 text-sm text-black/50">
-            {vouchers.length} voucher · total potongan diberikan {formatPrice(totalDiscount)}
+            {vouchers.length} {vouchers.length === 1 ? "voucher" : "vouchers"} · total discounts given {formatPrice(totalDiscount)}
           </p>
         </div>
         <Link
           href="/admin/vouchers/new"
           className="flex items-center gap-2 rounded-full bg-[#11120f] px-5 py-3 text-sm font-bold text-white hover:bg-black/80"
         >
-          <Plus size={16} /> Buat voucher
+          <Plus size={16} /> Create voucher
         </Link>
       </div>
 
@@ -58,13 +58,13 @@ export default async function AdminVouchers() {
           <thead className="bg-[#f7f7f2] text-xs uppercase tracking-wider text-black/50">
             <tr>
               <th className="px-4 py-3 font-bold">Voucher</th>
-              <th className="px-4 py-3 font-bold">Nilai</th>
-              <th className="px-4 py-3 font-bold">Berlaku s.d.</th>
-              <th className="px-4 py-3 font-bold">Kuota klaim</th>
-              <th className="px-4 py-3 font-bold">Dipakai</th>
-              <th className="px-4 py-3 font-bold">Total potongan</th>
+              <th className="px-4 py-3 font-bold">Value</th>
+              <th className="px-4 py-3 font-bold">Valid until</th>
+              <th className="px-4 py-3 font-bold">Claim quota</th>
+              <th className="px-4 py-3 font-bold">Used</th>
+              <th className="px-4 py-3 font-bold">Total discount</th>
               <th className="px-4 py-3 font-bold">Status</th>
-              <th className="px-4 py-3 text-right font-bold">Aksi</th>
+              <th className="px-4 py-3 text-right font-bold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black/10">
@@ -74,12 +74,12 @@ export default async function AdminVouchers() {
               const expired = Boolean(v.expiresAt && new Date(v.expiresAt) < now);
               const full = (v.quota ?? 0) > 0 && (v.claimedCount ?? 0) >= (v.quota ?? 0);
               const status = !v.isActive
-                ? { label: "Nonaktif", cls: "bg-black/10 text-black/50" }
+                ? { label: "Inactive", cls: "bg-black/10 text-black/50" }
                 : full
-                ? { label: "Kuota habis", cls: "bg-amber-100 text-amber-800" }
+                ? { label: "Fully claimed", cls: "bg-amber-100 text-amber-800" }
                 : expired
-                ? { label: "Kedaluwarsa", cls: "bg-red-100 text-red-700" }
-                : { label: "Aktif", cls: "bg-[#c7ea4c]" };
+                ? { label: "Expired", cls: "bg-red-100 text-red-700" }
+                : { label: "Active", cls: "bg-[#c7ea4c]" };
               return (
                 <tr key={id} className="hover:bg-black/[0.02]">
                   <td className="px-4 py-3">
@@ -93,7 +93,7 @@ export default async function AdminVouchers() {
                       {v.type === "PERCENT" ? `${v.value}%` : formatPrice(v.value)}
                     </p>
                     <p className="text-xs text-black/50">
-                      {(v.minSpend ?? 0) > 0 ? `Min. ${formatPrice(v.minSpend ?? 0)}` : "Tanpa minimum"}
+                      {(v.minSpend ?? 0) > 0 ? `Min. ${formatPrice(v.minSpend ?? 0)}` : "No minimum"}
                       {v.type === "PERCENT" && (v.maxDiscount ?? 0) > 0
                         ? ` · maks. ${formatPrice(v.maxDiscount ?? 0)}`
                         : ""}
@@ -101,13 +101,13 @@ export default async function AdminVouchers() {
                   </td>
                   <td className="px-4 py-3 text-black/70">
                     {v.expiresAt
-                      ? new Date(v.expiresAt).toLocaleDateString("id-ID", {
+                      ? new Date(v.expiresAt).toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
                           timeZone: "Asia/Jakarta",
                         })
-                      : "Tanpa batas"}
+                      : "No limit"}
                   </td>
                   <td className="px-4 py-3">
                     <p>

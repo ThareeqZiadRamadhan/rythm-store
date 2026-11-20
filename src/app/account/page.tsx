@@ -6,12 +6,12 @@ import User from "@/models/User";
 import ProfileForm from "@/components/ProfileForm";
 import AddressBook from "@/components/AddressBook";
 
-export const metadata = { title: "Profil — RYTHM" };
+export const metadata = { title: "Profile — RYTHM" };
 
 const roleLabel = {
-  USER: "Pelanggan",
+  USER: "Customer",
   ADMIN: "Admin",
-  SUPERADMIN: "Super admin",
+  SUPERADMIN: "Superadmin",
 } as const;
 
 export default async function ProfilePage() {
@@ -25,7 +25,7 @@ export default async function ProfilePage() {
   if (!user) redirect("/login");
 
   const since = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString("id-ID", {
+    ? new Date(user.createdAt).toLocaleDateString("en-GB", {
         month: "long",
         year: "numeric",
       })
@@ -34,8 +34,8 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-black tracking-tight">Profil</h1>
-        <p className="mt-2 text-sm text-black/50">Kelola data akun dan alamat pengirimanmu.</p>
+        <h1 className="text-3xl font-black tracking-tight">Profile</h1>
+        <p className="mt-2 text-sm text-black/50">Manage your account details and shipping addresses.</p>
       </div>
 
       {/* Kartu header */}
@@ -53,11 +53,11 @@ export default async function ProfilePage() {
             <p className="mt-1 truncate text-sm text-white/60">{user.email}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold">
-                {roleLabel[user.role as keyof typeof roleLabel] ?? "Pelanggan"}
+                {roleLabel[user.role as keyof typeof roleLabel] ?? "Customer"}
               </span>
               {since && (
                 <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold">
-                  Anggota sejak {since}
+                  Member since {since}
                 </span>
               )}
             </div>

@@ -4,33 +4,33 @@ import SizeFinder from "@/components/SizeFinder";
 import { getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/data";
 
-export const metadata = { title: "Cari ukuranmu — RYTHM" };
+export const metadata = { title: "Find your size — RYTHM" };
 export const dynamic = "force-dynamic";
 
 const steps = [
   {
     icon: StickyNote,
-    title: "Berdiri di atas kertas",
-    text: "Letakkan kertas di lantai yang keras dengan satu sisi pendeknya menempel ke dinding. Berdiri di atasnya memakai kaus kaki yang biasa kamu pakai, tumit menempel ke dinding.",
+    title: "Stand on paper",
+    text: "Place a sheet of paper on a hard floor with one short edge against a wall. Stand on it in the socks you usually wear, with your heel touching the wall.",
   },
   {
     icon: PenLine,
-    title: "Tandai jari terpanjang",
-    text: "Minta orang lain menandai ujung jari terpanjangmu dengan pensil yang dipegang tegak. Jari terpanjang tidak selalu jempol.",
+    title: "Mark your longest toe",
+    text: "Ask someone to mark the tip of your longest toe with a pencil held upright. Your longest toe is not always your big toe.",
   },
   {
     icon: Ruler,
-    title: "Ukur, lalu geser",
-    text: "Ukur dari dinding sampai tanda, lalu isi atau geser angkanya di atas. Ukur kedua kaki dan pakai hasil yang lebih panjang.",
+    title: "Measure, then slide",
+    text: "Measure from the wall to the mark, then slide the number above to match. Measure both feet and use the longer one.",
   },
 ];
 
 const FIT_NOTES: Record<string, string> = {
   Running:
-    "Pas sesuai ukuran dengan tumit yang mengunci. Kalau di antara dua ukuran, naik satu ukuran untuk lari jarak jauh.",
-  Lifestyle: "Pas sesuai ukuran dengan ruang jari yang lega. Kaki lebar tetap nyaman di ukuran biasanya.",
+    "True to size with a locked-in heel. If you are between sizes, go half a size up for long runs.",
+  Lifestyle: "True to size with a roomy toe box. Wide feet stay comfortable in their usual size.",
   Training:
-    "Pas sesuai ukuran dengan bagian tengah sedikit lebih ramping untuk stabilitas. Kalau di antara dua ukuran, naik satu.",
+    "True to size with a slightly narrower midfoot for stability. If you are between sizes, size up.",
 };
 
 export default async function FitPage() {
@@ -44,13 +44,13 @@ export default async function FitPage() {
       <section className="mx-auto max-w-[1440px] px-5 pt-10 md:px-10 md:pt-14">
         <nav aria-label="Breadcrumb" className="text-sm text-black/50">
           <Link href="/" className="hover:text-black">
-            Beranda
+            Home
           </Link>{" "}
-          / <span className="text-black">Cari ukuran</span>
+          / <span className="text-black">Find your size</span>
         </nav>
-        <h1 className="mt-6 font-display text-5xl uppercase leading-none md:text-7xl">Cari ukuranmu.</h1>
+        <h1 className="mt-6 font-display text-5xl uppercase leading-none md:text-7xl">Find your size.</h1>
         <p className="mt-4 max-w-xl text-black/60">
-          Ukur kakimu dalam dua menit, lalu dapatkan ukuran yang pas untuk semua sepatu RYTHM.
+          Measure your foot in two minutes and get the right size for every RYTHM shoe.
         </p>
       </section>
 
@@ -60,8 +60,8 @@ export default async function FitPage() {
 
       <section className="border-y border-black/10 bg-white">
         <div className="mx-auto max-w-[1440px] px-5 py-14 md:px-10 md:py-20">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#789600]">2 menit</p>
-          <h2 className="mt-3 font-display text-4xl uppercase leading-none md:text-6xl">Cara mengukur</h2>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#789600]">2 minutes</p>
+          <h2 className="mt-3 font-display text-4xl uppercase leading-none md:text-6xl">How to measure</h2>
           <div className="mt-10 grid gap-px bg-black/10 md:grid-cols-3">
             {steps.map(({ icon: Icon, title, text }, i) => (
               <div key={title} className="bg-white p-8 md:p-10">
@@ -80,7 +80,7 @@ export default async function FitPage() {
       {groups.length > 0 && (
         <section className="mx-auto max-w-[1440px] px-5 py-14 md:px-10 md:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#789600]">Per model</p>
-          <h2 className="mt-3 font-display text-4xl uppercase leading-none md:text-6xl">Ukuran tiap sepatu</h2>
+          <h2 className="mt-3 font-display text-4xl uppercase leading-none md:text-6xl">Fit by model</h2>
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {groups.map((g) => (
               <div key={g.category} className="rounded-3xl border border-black/10 bg-white p-6">
@@ -116,15 +116,15 @@ export default async function FitPage() {
           <div className="flex items-center gap-4">
             <RefreshCw size={28} className="text-[#c7ea4c]" />
             <div>
-              <p className="text-xl font-black">Masih ragu? Tukar ukuran gratis.</p>
-              <p className="mt-1 text-sm text-white/60">Penukaran ukuran bisa diajukan hingga 14 hari setelah barang diterima.</p>
+              <p className="text-xl font-black">Still unsure? Exchange sizes for free.</p>
+              <p className="mt-1 text-sm text-white/60">Size exchanges can be requested up to 14 days after delivery.</p>
             </div>
           </div>
           <Link
             href="/shop"
             className="rounded-full bg-[#c7ea4c] px-6 py-3.5 text-sm font-black text-[#11120f] hover:bg-[#d6f25e]"
           >
-            Lihat koleksi
+            Shop the collection
           </Link>
         </div>
       </section>

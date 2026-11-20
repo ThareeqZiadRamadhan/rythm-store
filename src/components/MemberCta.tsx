@@ -15,14 +15,14 @@ export default function MemberCta() {
     return (
       <div>
         <p className="text-lg font-semibold text-white">
-          Kamu sudah jadi member, {firstName}.
+          You're already a member, {firstName}.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
             href="/account/vouchers"
             className="group flex h-14 items-center gap-2 rounded-full bg-[#c7ea4c] px-7 font-black text-[#11120f] transition hover:bg-[#d6f25e]"
           >
-            <Ticket size={18} /> Lihat voucher saya
+            <Ticket size={18} /> View my vouchers
             <ArrowRight size={18} className="transition group-hover:translate-x-0.5" />
           </Link>
           <Link
@@ -43,19 +43,19 @@ export default function MemberCta() {
           href="/register"
           className="group flex h-14 items-center gap-2 rounded-full bg-[#c7ea4c] px-8 font-black text-[#11120f] transition hover:bg-[#d6f25e]"
         >
-          Daftar sekarang
+          Sign up now
           <ArrowRight size={18} className="transition group-hover:translate-x-0.5" />
         </Link>
         <p className="text-sm text-white/60">
-          Sudah punya akun?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="font-bold text-white underline underline-offset-4">
-            Masuk
+            Sign in
           </Link>
         </p>
       </div>
       <p className="mt-5 text-sm text-white/45">
-        Gratis. Member baru bisa langsung klaim voucher{" "}
-        <span className="font-mono font-bold text-white/70">WELCOME10</span>.
+        Free. New members can claim the voucher{" "}
+        <span className="font-mono font-bold text-white/70">WELCOME10</span> right away.
       </p>
     </div>
   );

@@ -14,23 +14,23 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const { id } = await params;
   if (!mongoose.isValidObjectId(id)) {
-    return NextResponse.json({ error: "ID pesanan tidak valid." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid order ID." }, { status: 400 });
   }
 
   try {
     const body = await req.json().catch(() => ({}));
     const next = String(body.status ?? "") as OrderStatus;
     if (!(next in STATUS_LABEL)) {
-      return NextResponse.json({ error: "Status tidak valid." }, { status: 400 });
+      return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
 
     const order = await Order.findById(id);
-    if (!order) return NextResponse.json({ error: "Pesanan tidak ditemukan." }, { status: 404 });
+    if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 });
 
     const current = order.status as OrderStatus;
     if (!NEXT_STATUS[current].includes(next)) {
       return NextResponse.json(
-        { error: `Status tidak bisa diubah dari ${STATUS_LABEL[current]} ke ${STATUS_LABEL[next]}.` },
+        { error: `Status cannot change from ${STATUS_LABEL[current]} to ${STATUS_LABEL[next]}.` },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     );
     if (!updated) {
       return NextResponse.json(
-        { error: "Pesanan baru saja diubah. Muat ulang halaman." },
+        { error: "This order was just updated. Please reload the page." },
         { status: 409 }
       );
     }
@@ -59,6 +59,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ status: next });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

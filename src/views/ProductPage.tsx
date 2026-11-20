@@ -140,7 +140,7 @@ function ProductDetail({
                 <button
                   key={`${src}-${i}`}
                   onClick={() => goTo(i)}
-                  aria-label={`Lihat foto ${i + 1}`}
+                  aria-label={`View photo ${i + 1}`}
                   className={`size-[72px] overflow-hidden rounded-md border-2 bg-[#f5f5f5] transition-colors ${
                     index === i ? "border-black" : "border-transparent hover:border-black/40"
                   }`}
@@ -172,7 +172,7 @@ function ProductDetail({
                     <div key={`${src}-${i}`} className="aspect-[4/5] w-full shrink-0 lg:aspect-auto lg:h-full">
                       <img
                         src={src}
-                        alt={`${product.name} foto ${i + 1}`}
+                        alt={`${product.name} photo ${i + 1}`}
                         draggable={false}
                         className="pointer-events-none h-full w-full object-cover mix-blend-multiply"
                       />
@@ -188,7 +188,7 @@ function ProductDetail({
                 <button
                   onClick={() => goTo(index - 1)}
                   disabled={index === 0}
-                  aria-label="Foto sebelumnya"
+                  aria-label="Previous photo"
                   className="grid size-11 place-items-center rounded-full bg-white shadow transition hover:bg-[#e5e5e5] disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronLeft size={20} />
@@ -196,7 +196,7 @@ function ProductDetail({
                 <button
                   onClick={() => goTo(index + 1)}
                   disabled={index === total - 1}
-                  aria-label="Foto berikutnya"
+                  aria-label="Next photo"
                   className="grid size-11 place-items-center rounded-full bg-white shadow transition hover:bg-[#e5e5e5] disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronRight size={20} />
@@ -209,19 +209,19 @@ function ProductDetail({
           <div>
             {product.tag && <p className="text-sm font-medium text-[#d33918]">{product.tag}</p>}
             <h1 className="text-2xl font-medium md:text-[28px]">{product.name}</h1>
-            <p className="mt-1">Sepatu {product.category}</p>
+            <p className="mt-1">{product.category} shoes</p>
             {rating.count > 0 && (
               <a
-                href="#ulasan"
+                href="#reviews"
                 onClick={() => {
-                  const d = document.getElementById("ulasan") as HTMLDetailsElement | null;
+                  const d = document.getElementById("reviews") as HTMLDetailsElement | null;
                   if (d) d.open = true;
                 }}
                 className="mt-2 inline-flex items-center gap-2 text-sm hover:underline"
               >
                 <Stars value={rating.average} size={14} />
                 <span className="font-medium">{rating.average.toFixed(1)}</span>
-                <span className="text-black/50">· {rating.count} ulasan</span>
+                <span className="text-black/50">· {rating.count} {rating.count === 1 ? "review" : "reviews"}</span>
               </a>
             )}
 
@@ -244,18 +244,18 @@ function ProductDetail({
                 />
               </div>
               {product.colorName && (
-                <p className="mt-2 text-sm text-black/60">Warna: {product.colorName}</p>
+                <p className="mt-2 text-sm text-black/60">Color: {product.colorName}</p>
               )}
             </div>
 
             <div className="mt-8">
               <div className="flex items-center justify-between">
-                <p className="font-medium">Pilih ukuran</p>
+                <p className="font-medium">Select size</p>
                 <Link
                   href="/fit"
                   className="text-sm text-black/55 underline-offset-4 hover:text-black hover:underline"
                 >
-                  Panduan ukuran
+                  Size guide
                 </Link>
               </div>
               <div
@@ -269,7 +269,7 @@ function ProductDetail({
                     <button
                       key={item}
                       disabled={out}
-                      aria-label={out ? `EU ${item}, stok habis` : `EU ${item}`}
+                      aria-label={out ? `EU ${item}, sold out` : `EU ${item}`}
                       onClick={() => {
                         setSize(item);
                         setSizeError(false);
@@ -288,11 +288,11 @@ function ProductDetail({
                 })}
               </div>
               {sizeError && (
-                <p className="mt-2 text-sm text-[#d33918]">Pilih ukuran terlebih dahulu.</p>
+                <p className="mt-2 text-sm text-[#d33918]">Please select a size first.</p>
               )}
               {size !== null && stockOf(size) > 0 && stockOf(size) <= 3 && (
                 <p className="mt-2 text-sm font-medium text-[#d33918]">
-                  Sisa {stockOf(size)} pasang untuk EU {size}.
+                  Only {stockOf(size)} {stockOf(size) === 1 ? "pair" : "pairs"} left in EU {size}.
                 </p>
               )}
             </div>
@@ -302,13 +302,13 @@ function ProductDetail({
               disabled={soldOut}
               className="mt-8 w-full rounded-full bg-[#111] px-6 py-5 text-base font-medium text-white transition-colors hover:bg-black/70 disabled:cursor-not-allowed disabled:bg-black/20"
             >
-              {soldOut ? "Stok habis" : "Tambah ke keranjang"}
+              {soldOut ? "Sold out" : "Add to cart"}
             </button>
             <button
               onClick={() => toggle(product.slug)}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-black/25 px-6 py-5 text-base font-medium transition-colors hover:border-black"
             >
-              {liked ? "Tersimpan di wishlist" : "Favorit"}
+              {liked ? "Saved to wishlist" : "Favorite"}
               <Heart size={20} className={liked ? "fill-[#e2533f] text-[#e2533f]" : ""} />
             </button>
 
@@ -319,19 +319,19 @@ function ProductDetail({
             {product.description && <p className="mt-8 leading-7">{product.description}</p>}
 
             <div className="mt-8 border-t border-black/10">
-              <Accordion title="Detail produk" defaultOpen>
+              <Accordion title="Product details" defaultOpen>
                 <ul className="list-disc space-y-1 pl-5">
                   {product.features.map((feature) => (
                     <li key={feature}>{feature}</li>
                   ))}
-                  {product.colorName && <li>Warna ditampilkan: {product.colorName}</li>}
+                  {product.colorName && <li>Color shown: {product.colorName}</li>}
                 </ul>
               </Accordion>
-              <Accordion title="Pengiriman & pengembalian">
+              <Accordion title="Shipping & returns">
                 <p>
-                  {freeShippingText(settings)}. Estimasi
-                  pengiriman 2–5 hari kerja. Pengembalian dapat diajukan maksimal 14 hari setelah
-                  barang diterima, selama produk belum dipakai.
+                  {freeShippingText(settings)}. Estimated
+                  delivery in 2–5 business days. Returns can be requested within 14 days of
+                  delivery, as long as the shoes are unworn.
                 </p>
               </Accordion>
               <ProductReviews slug={product.slug} />
@@ -342,7 +342,7 @@ function ProductDetail({
 
       {related.length > 0 && (
         <section className="mx-auto max-w-[1440px] px-5 pb-20 pt-6 md:px-10">
-          <h2 className="text-2xl font-medium">Kamu mungkin juga suka</h2>
+          <h2 className="text-2xl font-medium">You may also like</h2>
           <div className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {related.map((item) => (
               <ProductCard key={item.id} product={item} />

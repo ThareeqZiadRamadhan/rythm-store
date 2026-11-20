@@ -9,13 +9,13 @@ export default function DeleteProductButton({ id, name }: { id: string; name: st
   const [busy, setBusy] = useState(false);
 
   async function handleDelete() {
-    if (!window.confirm(`Hapus "${name}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
     setBusy(true);
     const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) {
-      window.alert(data.error ?? "Gagal menghapus produk.");
+      window.alert(data.error ?? "Could not delete the product.");
       return;
     }
     router.refresh();
@@ -25,7 +25,7 @@ export default function DeleteProductButton({ id, name }: { id: string; name: st
     <button
       onClick={handleDelete}
       disabled={busy}
-      aria-label={`Hapus ${name}`}
+      aria-label={`Delete ${name}`}
       className="grid size-9 place-items-center rounded-full text-red-600 transition hover:bg-red-50 disabled:opacity-50"
     >
       {busy ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}

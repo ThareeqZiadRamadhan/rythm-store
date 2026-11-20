@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/data";
 
 type Hit = { slug: string; name: string; category: string; price: number; image: string; color: string };
 
-const SUGGESTIONS = ["Running", "Lifestyle", "Training", "Pria", "Wanita"];
+const SUGGESTIONS = ["Running", "Lifestyle", "Training", "Men", "Women"];
 
 export default function SearchButton() {
   const router = useRouter();
@@ -85,7 +85,7 @@ export default function SearchButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label="Cari produk"
+        aria-label="Search products"
         className="grid size-10 place-items-center rounded-full transition-colors hover:bg-black/5"
       >
         <Search size={20} />
@@ -94,7 +94,7 @@ export default function SearchButton() {
       {open && (
         <div className="fixed inset-0 z-[60]">
           <button
-            aria-label="Tutup pencarian"
+            aria-label="Close search"
             className="absolute inset-0 bg-black/45 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
@@ -105,14 +105,14 @@ export default function SearchButton() {
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Cari sepatu, kategori, atau warna..."
+                placeholder="Search shoes, categories or colors..."
                 className="h-10 flex-1 bg-transparent text-lg outline-none placeholder:text-black/35"
               />
               {loading && <Loader2 size={18} className="animate-spin text-black/40" />}
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Tutup"
+                aria-label="Close"
                 className="grid size-9 place-items-center rounded-full hover:bg-black/5"
               >
                 <X size={18} />
@@ -122,7 +122,7 @@ export default function SearchButton() {
             <div className="max-h-[70vh] overflow-y-auto p-3">
               {!q.trim() ? (
                 <div className="p-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-black/40">Coba cari</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-black/40">Try searching</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {SUGGESTIONS.map((s) => (
                       <button
@@ -135,11 +135,11 @@ export default function SearchButton() {
                       </button>
                     ))}
                   </div>
-                  <p className="mt-5 text-xs text-black/40">Tip: tekan Cmd+K untuk membuka pencarian.</p>
+                  <p className="mt-5 text-xs text-black/40">Tip: press Cmd+K to open search.</p>
                 </div>
               ) : hits.length === 0 && !loading ? (
                 <p className="p-6 text-center text-sm text-black/50">
-                  Tidak ada produk yang cocok dengan &ldquo;{q.trim()}&rdquo;.
+                  No products match &ldquo;{q.trim()}&rdquo;.
                 </p>
               ) : (
                 <>
@@ -171,7 +171,7 @@ export default function SearchButton() {
                       onClick={submit}
                       className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#11120f] px-4 py-3 text-sm font-bold text-white hover:bg-black/80"
                     >
-                      Lihat semua hasil untuk &ldquo;{q.trim()}&rdquo; <ArrowRight size={16} />
+                      See all results for &ldquo;{q.trim()}&rdquo; <ArrowRight size={16} />
                     </button>
                   )}
                 </>

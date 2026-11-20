@@ -37,10 +37,10 @@ export async function adminApi(
 ): Promise<{ admin: AdminUser; error?: undefined } | { admin?: undefined; error: NextResponse }> {
   const { session, admin } = await findAdmin(Boolean(opts.superadmin));
   if (!session) {
-    return { error: NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 }) };
+    return { error: NextResponse.json({ error: "Please sign in first." }, { status: 401 }) };
   }
   if (!admin) {
-    return { error: NextResponse.json({ error: "Akses ditolak." }, { status: 403 }) };
+    return { error: NextResponse.json({ error: "Access denied." }, { status: 403 }) };
   }
   return { admin };
 }

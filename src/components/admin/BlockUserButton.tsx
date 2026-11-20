@@ -18,8 +18,8 @@ export default function BlockUserButton({
 
   async function toggle() {
     const question = blocked
-      ? `Aktifkan kembali akun ${email}?`
-      : `Blokir akun ${email}? Akun ini langsung keluar dan tidak bisa login atau checkout.`;
+      ? `Unblock the account ${email}?`
+      : `Block the account ${email}? It will be signed out immediately and will not be able to sign in or check out.`;
     if (!window.confirm(question)) return;
 
     setBusy(true);
@@ -30,7 +30,7 @@ export default function BlockUserButton({
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (!res.ok) return window.alert(data.error ?? "Gagal mengubah status akun.");
+    if (!res.ok) return window.alert(data.error ?? "Could not update the account status.");
     router.refresh();
   }
 
@@ -45,7 +45,7 @@ export default function BlockUserButton({
       }`}
     >
       {busy ? <Loader2 size={13} className="animate-spin" /> : blocked ? <RotateCcw size={13} /> : <Ban size={13} />}
-      {blocked ? "Aktifkan" : "Blokir"}
+      {blocked ? "Unblock" : "Block"}
     </button>
   );
 }

@@ -5,7 +5,7 @@ import { SIZES, type Category, type Gender, type ProductInput } from "@/lib/prod
 import Product from "@/models/Product";
 import ProductForm from "@/components/admin/ProductForm";
 
-export const metadata = { title: "Edit produk — Admin RYTHM" };
+export const metadata = { title: "Edit product — Admin RYTHM" };
 export const dynamic = "force-dynamic";
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -39,7 +39,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Edit produk</h1>
+      <h1 className="text-3xl font-black tracking-tight">Edit product</h1>
       <p className="mb-8 mt-2 text-sm text-black/50">{p.name}</p>
       <ProductForm id={id} initial={initial} />
     </div>

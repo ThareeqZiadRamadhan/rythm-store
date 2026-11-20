@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const email = String(body.email ?? "").trim().toLowerCase();
 
     if (!/^\S+@\S+\.\S+$/.test(email)) {
-      return NextResponse.json({ error: "Format email belum benar." }, { status: 400 });
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
 
     await connectDB();
@@ -19,6 +19,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ exists: Boolean(exists) });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

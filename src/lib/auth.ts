@@ -17,7 +17,7 @@ export type SessionPayload = {
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
-  if (!secret) throw new Error("AUTH_SECRET belum diisi di .env.local");
+  if (!secret) throw new Error("AUTH_SECRET is not set in .env.local");
   return new TextEncoder().encode(secret);
 }
 

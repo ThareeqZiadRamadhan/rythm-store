@@ -11,51 +11,66 @@ type SortKey = "featured" | "price-asc" | "price-desc" | "name";
 
 const HEADINGS: Record<
   string,
-  { crumb: string; words: [string, string]; catSuffix: string; desc: string }
+  { crumb: string; words: [string, string]; catTitle: (c: string) => { text: string; dim: boolean }[]; desc: string }
 > = {
   all: {
-    crumb: "Koleksi",
-    words: ["Semua", "Sepatu"],
-    catSuffix: "",
-    desc: "Sepatu lari, lifestyle, dan training dari RYTHM/. Dibuat untuk dipakai setiap hari, dari pagi sampai malam.",
+    crumb: "Shop",
+    words: ["All", "Shoes"],
+    catTitle: (c) => [
+      { text: c, dim: false },
+      { text: "Shoes", dim: true },
+    ],
+    desc: "Running, lifestyle and training shoes from RYTHM/. Made to be worn every day, from morning to night.",
   },
   men: {
-    crumb: "Pria",
-    words: ["Sepatu", "Pria"],
-    catSuffix: "Pria",
-    desc: "Koleksi pria dan unisex, dari sepatu lari ringan sampai sneakers harian.",
+    crumb: "Men",
+    words: ["Men's", "Shoes"],
+    catTitle: (c) => [
+      { text: "Men's", dim: true },
+      { text: c, dim: false },
+    ],
+    desc: "Men's and unisex styles, from lightweight running shoes to everyday sneakers.",
   },
   women: {
-    crumb: "Wanita",
-    words: ["Sepatu", "Wanita"],
-    catSuffix: "Wanita",
-    desc: "Koleksi wanita dan unisex, nyaman dipakai seharian dan tetap rapi dilihat.",
+    crumb: "Women",
+    words: ["Women's", "Shoes"],
+    catTitle: (c) => [
+      { text: "Women's", dim: true },
+      { text: c, dim: false },
+    ],
+    desc: "Women's and unisex styles, comfortable all day and sharp all the way.",
   },
   new: {
-    crumb: "Terbaru",
-    words: ["Baru", "Mendarat"],
-    catSuffix: "Terbaru",
-    desc: "Model paling baru dari RYTHM/. Ambil sebelum ukuranmu habis.",
+    crumb: "New",
+    words: ["New", "Arrivals"],
+    catTitle: (c) => [
+      { text: "New", dim: true },
+      { text: c, dim: false },
+    ],
+    desc: "The latest drops from RYTHM/. Grab them before your size is gone.",
   },
   sale: {
     crumb: "Sale",
-    words: ["Harga", "Spesial"],
-    catSuffix: "Diskon",
-    desc: "Sepatu bagus dengan harga lebih ringan. Stok terbatas.",
+    words: ["On", "Sale"],
+    catTitle: (c) => [
+      { text: c, dim: false },
+      { text: "Sale", dim: true },
+    ],
+    desc: "Good shoes, lighter prices. Limited stock.",
   },
 };
 
 const CATEGORY_DESC: Record<string, string> = {
-  Running: "Ringan, empuk, dan responsif. Untuk lari pagi, latihan interval, sampai race day.",
-  Lifestyle: "Sneakers harian untuk kuliah, kerja, dan nongkrong. Nyaman dari pagi sampai malam.",
-  Training: "Stabil dan mantap untuk gym, HIIT, dan latihan beban.",
+  Running: "Light, cushioned and responsive. For morning runs, interval sessions and race day.",
+  Lifestyle: "Everyday sneakers for campus, work and hanging out. Comfortable from morning to night.",
+  Training: "Stable and grounded for the gym, HIIT and strength training.",
 };
 
 const SORT_LABELS: Record<SortKey, string> = {
-  featured: "Unggulan",
-  "price-asc": "Harga terendah",
-  "price-desc": "Harga tertinggi",
-  name: "Nama A–Z",
+  featured: "Featured",
+  "price-asc": "Price: low to high",
+  "price-desc": "Price: high to low",
+  name: "Name A–Z",
 };
 
 // Konten lama geser ke kiri, konten baru masuk dari kanan (seperti Amble)
@@ -80,7 +95,7 @@ export default function ShopPage({
 }) {
   const heading = HEADINGS[mode] ?? HEADINGS.all;
 
-  const [category, setCategory] = useState("Semua");
+  const [category, setCategory] = useState("All");
   const [selectedSize, setSelectedSize] = useState<number | null>(size ?? null);
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [sort, setSort] = useState<SortKey>("featured");
@@ -98,7 +113,7 @@ export default function ShopPage({
 
   // Tab kategori diambil dari produk yang ada
   const categories = useMemo(
-    () => ["Semua", ...Array.from(new Set(modeProducts.map((p) => p.category))).sort()],
+    () => ["All", ...Array.from(new Set(modeProducts.map((p) => p.category))).sort()],
     [modeProducts],
   );
 
@@ -111,7 +126,7 @@ export default function ShopPage({
 
   const visibleProducts = useMemo(() => {
     let list = modeProducts;
-    if (category !== "Semua") list = list.filter((p) => p.category === category);
+    if (category !== "All") list = list.filter((p) => p.category === category);
     if (selectedSize) list = list.filter((p) => (p.stock[selectedSize] ?? 0) > 0);
     if (hideSoldOut) list = list.filter((p) => p.totalStock > 0);
 
@@ -123,29 +138,21 @@ export default function ShopPage({
     return sorted.sort((a, b) => Number(a.totalStock <= 0) - Number(b.totalStock <= 0));
   }, [modeProducts, category, selectedSize, hideSoldOut, sort]);
 
-  const hasCategory = category !== "Semua";
+  const hasCategory = category !== "All";
   const titleParts = !hasCategory
     ? [
         { text: heading.words[0], dim: false },
         { text: heading.words[1], dim: true },
       ]
-    : heading.catSuffix
-      ? [
-          { text: category, dim: false },
-          { text: heading.catSuffix, dim: true },
-        ]
-      : [
-          { text: "Sepatu", dim: true },
-          { text: category, dim: false },
-        ];
+    : heading.catTitle(category);
   const description = hasCategory
-    ? (CATEGORY_DESC[category] ?? `Pilihan sepatu ${category.toLowerCase()} dari RYTHM/.`)
+    ? (CATEGORY_DESC[category] ?? `${category} shoes from RYTHM/.`)
     : heading.desc;
 
   const activeFilters = (selectedSize ? 1 : 0) + (hideSoldOut ? 1 : 0);
 
   function resetAll() {
-    setCategory("Semua");
+    setCategory("All");
     setSelectedSize(null);
     setHideSoldOut(false);
   }
@@ -157,13 +164,13 @@ export default function ShopPage({
         <section className="pb-12 pt-12 md:pb-16 md:pt-20">
           <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2.5 text-[15px]">
             <Link href="/" className="text-black/50 transition hover:text-black">
-              Beranda
+              Home
             </Link>
             <span className="text-black/30">/</span>
             {hasCategory ? (
               <button
                 type="button"
-                onClick={() => withSlide(() => setCategory("Semua"))}
+                onClick={() => withSlide(() => setCategory("All"))}
                 className="text-black/50 transition hover:text-black"
               >
                 {heading.crumb}
@@ -228,7 +235,7 @@ export default function ShopPage({
               className="inline-flex items-center gap-2.5 rounded-full bg-white px-5 py-3 text-[16px] text-[#111] ring-1 ring-black/[0.06] transition hover:ring-black/20"
             >
               <SlidersHorizontal size={18} strokeWidth={1.8} />
-              Filter
+              Filters
               {activeFilters > 0 && (
                 <span className="grid h-5 min-w-5 place-items-center rounded-full bg-[#111] px-1.5 text-[11px] font-semibold text-white">
                   {activeFilters}
@@ -237,13 +244,13 @@ export default function ShopPage({
             </button>
 
             <label className="relative inline-flex items-center gap-2 rounded-full bg-white py-3 pl-5 pr-11 text-[16px] ring-1 ring-black/[0.06] transition hover:ring-black/20">
-              <span className="text-black/45">Urutkan</span>
+              <span className="text-black/45">Sort</span>
               <span className="text-[#111]">{SORT_LABELS[sort]}</span>
               <ChevronDown size={18} className="pointer-events-none absolute right-4 text-[#111]" />
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortKey)}
-                aria-label="Urutkan produk"
+                aria-label="Sort products"
                 className="absolute inset-0 cursor-pointer opacity-0"
               >
                 {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
@@ -261,7 +268,7 @@ export default function ShopPage({
           <div className="mt-5 rounded-[24px] bg-white p-6 ring-1 ring-black/[0.06] md:p-8">
             <div className="flex flex-wrap items-start justify-between gap-6">
               <div>
-                <p className="text-[15px] font-medium text-[#111]">Ukuran EU (yang tersedia)</p>
+                <p className="text-[15px] font-medium text-[#111]">EU size (in stock)</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {sizes.map((s) => {
                     const active = selectedSize === s;
@@ -282,7 +289,7 @@ export default function ShopPage({
                   })}
                 </div>
                 <Link href="/fit" className="mt-3 inline-block text-sm text-black/50 underline underline-offset-4 hover:text-black">
-                  Belum tahu ukuranmu? Cari ukuranmu
+                  Not sure of your size? Find your size
                 </Link>
               </div>
 
@@ -293,7 +300,7 @@ export default function ShopPage({
                   onChange={(e) => setHideSoldOut(e.target.checked)}
                   className="h-5 w-5 accent-[#111]"
                 />
-                Sembunyikan stok habis
+                Hide sold out
               </label>
             </div>
           </div>
@@ -301,14 +308,14 @@ export default function ShopPage({
 
         {/* Ringkasan filter aktif */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <p className="text-[15px] text-black/50">{visibleProducts.length} produk</p>
+          <p className="text-[15px] text-black/50">{visibleProducts.length} {visibleProducts.length === 1 ? "product" : "products"}</p>
           {selectedSize && (
             <button
               type="button"
               onClick={() => setSelectedSize(null)}
               className="inline-flex items-center gap-1.5 rounded-full bg-[#111] px-3.5 py-1.5 text-sm text-white hover:bg-black/80"
             >
-              Ukuran EU {selectedSize} <X size={14} />
+              EU {selectedSize} <X size={14} />
             </button>
           )}
           {hideSoldOut && (
@@ -317,7 +324,7 @@ export default function ShopPage({
               onClick={() => setHideSoldOut(false)}
               className="inline-flex items-center gap-1.5 rounded-full bg-[#111] px-3.5 py-1.5 text-sm text-white hover:bg-black/80"
             >
-              Tanpa stok habis <X size={14} />
+              In stock only <X size={14} />
             </button>
           )}
         </div>
@@ -332,14 +339,14 @@ export default function ShopPage({
         ) : (
           <div className="mt-6 rounded-[28px] bg-white py-28 text-center ring-1 ring-black/[0.06]">
             <p className="text-2xl font-semibold tracking-tight text-[#111]">
-              Belum ada sepatu yang cocok dengan filter ini.
+              No shoes match these filters yet.
             </p>
             <button
               type="button"
               onClick={resetAll}
               className="mt-6 rounded-full bg-[#111] px-6 py-3 text-[15px] font-medium text-white hover:bg-black/80"
             >
-              Hapus semua filter
+              Clear all filters
             </button>
           </div>
         )}

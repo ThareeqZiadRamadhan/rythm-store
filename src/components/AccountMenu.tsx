@@ -25,16 +25,16 @@ export type SessionUser = {
 type MenuLink = { href: string; label: string; icon: LucideIcon };
 
 const accountLinks: MenuLink[] = [
-  { href: "/account", label: "Profil", icon: UserIcon },
-  { href: "/account/orders", label: "Pesanan saya", icon: Package },
+  { href: "/account", label: "Profile", icon: UserIcon },
+  { href: "/account/orders", label: "My orders", icon: Package },
   { href: "/account/wishlist", label: "Wishlist", icon: Heart },
-  { href: "/account/vouchers", label: "Voucher saya", icon: Ticket },
-  { href: "/account/settings", label: "Pengaturan", icon: Settings },
+  { href: "/account/vouchers", label: "My vouchers", icon: Ticket },
+  { href: "/account/settings", label: "Settings", icon: Settings },
 ];
 
 const adminLink: MenuLink = {
   href: "/admin",
-  label: "Panel admin",
+  label: "Admin panel",
   icon: LayoutDashboard,
 };
 
@@ -133,17 +133,17 @@ export function AccountMenu({ user, ready, onLogout }: Props) {
           href="/login"
           className="hidden rounded-full px-4 py-2 text-sm font-semibold transition-colors hover:bg-black/5 sm:block"
         >
-          Masuk
+          Sign in
         </Link>
         <Link
           href="/register"
           className="hidden rounded-full bg-[#11120f] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black/80 sm:block"
         >
-          Daftar
+          Sign up
         </Link>
         <Link
           href="/login"
-          aria-label="Masuk atau daftar"
+          aria-label="Sign in or sign up"
           className="grid size-10 place-items-center rounded-full transition-colors hover:bg-black/5 sm:hidden"
         >
           <UserIcon size={20} />
@@ -159,7 +159,7 @@ export function AccountMenu({ user, ready, onLogout }: Props) {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        aria-label="Menu akun"
+        aria-label="Account menu"
         className="flex items-center gap-1.5 rounded-full p-1 pr-2 transition-colors hover:bg-black/5"
       >
         <span className="grid size-10 place-items-center rounded-full bg-[#dbe9a6] text-base font-bold text-[#4a5d00]">
@@ -197,7 +197,7 @@ export function AccountMenu({ user, ready, onLogout }: Props) {
                 className="flex w-full items-center gap-4 rounded-xl px-3 py-3 text-[15px] font-medium text-red-600 transition-colors hover:bg-red-50"
               >
                 <LogOut size={22} strokeWidth={1.6} />
-                Keluar
+                Sign out
               </button>
             </li>
           </ul>
@@ -224,14 +224,14 @@ export function MobileAccountLinks({
           onClick={onNavigate}
           className="rounded-full border border-black/15 px-4 py-3 text-center text-sm font-bold"
         >
-          Masuk
+          Sign in
         </Link>
         <Link
           href="/register"
           onClick={onNavigate}
           className="rounded-full bg-[#11120f] px-4 py-3 text-center text-sm font-bold text-white"
         >
-          Daftar
+          Sign up
         </Link>
       </div>
     );
@@ -262,7 +262,7 @@ export function MobileAccountLinks({
         className="flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left font-semibold text-red-600 hover:bg-red-50"
       >
         <LogOut size={20} strokeWidth={1.6} />
-        Keluar
+        Sign out
       </button>
     </div>
   );

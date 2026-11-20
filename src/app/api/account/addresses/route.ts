@@ -12,7 +12,7 @@ const MAX_ADDRESSES = 5;
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   try {
@@ -26,29 +26,29 @@ export async function POST(req: Request) {
     const postalCode = String(body.postalCode ?? "").trim();
 
     if (recipient.length < 2) {
-      return NextResponse.json({ error: "Nama penerima minimal 2 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Recipient name must be at least 2 characters." }, { status: 400 });
     }
     if (!phone) {
-      return NextResponse.json({ error: "Nomor HP belum benar." }, { status: 400 });
+      return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
     }
     if (street.length < 5) {
-      return NextResponse.json({ error: "Alamat lengkap minimal 5 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Full address must be at least 5 characters." }, { status: 400 });
     }
     if (!city || !province) {
-      return NextResponse.json({ error: "Kota dan provinsi wajib diisi." }, { status: 400 });
+      return NextResponse.json({ error: "City and province are required." }, { status: 400 });
     }
     if (!/^\d{5}$/.test(postalCode)) {
-      return NextResponse.json({ error: "Kode pos harus 5 angka." }, { status: 400 });
+      return NextResponse.json({ error: "Postal code must be 5 digits." }, { status: 400 });
     }
 
     await connectDB();
     const user = await User.findById(session.sub).select("addresses");
     if (!user) {
-      return NextResponse.json({ error: "Akun tidak ditemukan." }, { status: 404 });
+      return NextResponse.json({ error: "Account not found." }, { status: 404 });
     }
     if (user.addresses.length >= MAX_ADDRESSES) {
       return NextResponse.json(
-        { error: `Maksimal ${MAX_ADDRESSES} alamat.` },
+        { error: `You can save up to ${MAX_ADDRESSES} addresses.` },
         { status: 400 }
       );
     }
@@ -87,6 +87,6 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

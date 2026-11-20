@@ -5,24 +5,24 @@ import { useEffect, useState } from "react";
 
 const quotes = [
   {
-    text: "Tidak ada manusia yang terbatas.",
+    text: "No human is limited.",
     author: "Eliud Kipchoge",
-    role: "Juara maraton Olimpiade",
+    role: "Olympic Marathon Champion",
   },
   {
-    text: "Aku gagal berulang kali dalam hidupku. Dan itulah sebabnya aku berhasil.",
+    text: "I failed over and over again in my life. And that is why I succeed.",
     author: "Michael Jordan",
-    role: "Legenda basket dunia",
+    role: "Legendary basketball player",
   },
   {
-    text: "Memberi kurang dari yang terbaik berarti menyia-nyiakan anugerah.",
+    text: "Giving less than your best means wasting your gift.",
     author: "Steve Prefontaine",
-    role: "Pelari jarak jauh legendaris",
+    role: "Legendary long-distance runner",
   },
   {
-    text: "Aku tidak berpikir soal batas.",
+    text: "I don’t think limits.",
     author: "Usain Bolt",
-    role: "Pemegang rekor dunia lari 100 m",
+    role: "100m world record holder",
   },
 ];
 
@@ -108,7 +108,7 @@ export default function AuthQuotePanel() {
               key={q.author}
               type="button"
               onClick={() => setIndex(i)}
-              aria-label={`Kutipan ${i + 1}`}
+              aria-label={`Quote ${i + 1}`}
               className={`h-1.5 rounded-full transition-all duration-500 ${
                 i === index ? "w-8 bg-[#c7ea4c]" : "w-1.5 bg-white/30 hover:bg-white/60"
               }`}

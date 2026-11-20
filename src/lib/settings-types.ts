@@ -11,16 +11,16 @@ export type PublicSettings = {
 
 export const DEFAULT_SETTINGS: PublicSettings = {
   announcementEnabled: true,
-  announcementText: "Gratis ongkir seluruh Indonesia untuk pembelian di atas Rp999.000",
+  announcementText: "Free shipping across Indonesia on orders over Rp999,000",
   shippingFee: 25000,
   freeShippingMin: 999000,
 };
 
 /** Kalimat aturan ongkir untuk ditampilkan ke pembeli. */
 export function freeShippingText(s: Pick<PublicSettings, "shippingFee" | "freeShippingMin">) {
-  if (s.shippingFee === 0) return "Gratis ongkir seluruh Indonesia";
+  if (s.shippingFee === 0) return "Free shipping across Indonesia";
   if (s.freeShippingMin > 0) {
-    return `Gratis ongkir seluruh Indonesia untuk pembelian di atas ${formatPrice(s.freeShippingMin)}`;
+    return `Free shipping across Indonesia on orders over ${formatPrice(s.freeShippingMin)}`;
   }
-  return `Ongkir ${formatPrice(s.shippingFee)} ke seluruh Indonesia`;
+  return `Shipping ${formatPrice(s.shippingFee)} anywhere in Indonesia`;
 }

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   try {
@@ -17,11 +17,11 @@ export async function POST(req: Request) {
     const newPassword = String(body.newPassword ?? "");
 
     if (newPassword.length < 8) {
-      return NextResponse.json({ error: "Password baru minimal 8 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Your new password must be at least 8 characters." }, { status: 400 });
     }
     if (newPassword === currentPassword) {
       return NextResponse.json(
-        { error: "Password baru harus berbeda dari yang lama." },
+        { error: "Your new password must be different from the old one." },
         { status: 400 }
       );
     }
@@ -29,12 +29,12 @@ export async function POST(req: Request) {
     await connectDB();
     const user = await User.findById(session.sub).select("+passwordHash");
     if (!user) {
-      return NextResponse.json({ error: "Akun tidak ditemukan." }, { status: 404 });
+      return NextResponse.json({ error: "Account not found." }, { status: 404 });
     }
 
     const valid = await verifyPassword(currentPassword, user.passwordHash);
     if (!valid) {
-      return NextResponse.json({ error: "Password saat ini salah." }, { status: 400 });
+      return NextResponse.json({ error: "Your current password is incorrect." }, { status: 400 });
     }
 
     user.passwordHash = await hashPassword(newPassword);
@@ -43,6 +43,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

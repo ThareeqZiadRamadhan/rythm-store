@@ -18,7 +18,7 @@ function normalizePhone(raw: string): string | null {
 export async function PATCH(req: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Silakan masuk dulu." }, { status: 401 });
+    return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
   try {
@@ -27,14 +27,14 @@ export async function PATCH(req: Request) {
     const rawPhone = String(body.phone ?? "").trim();
 
     if (name.length < 2) {
-      return NextResponse.json({ error: "Nama minimal 2 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Name must be at least 2 characters." }, { status: 400 });
     }
 
     let phone = "";
     if (rawPhone) {
       const normalized = normalizePhone(rawPhone);
       if (!normalized) {
-        return NextResponse.json({ error: "Nomor HP belum benar." }, { status: 400 });
+        return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
       }
       phone = normalized;
     }
@@ -47,7 +47,7 @@ export async function PATCH(req: Request) {
     ).select("name email phone");
 
     if (!user) {
-      return NextResponse.json({ error: "Akun tidak ditemukan." }, { status: 404 });
+      return NextResponse.json({ error: "Account not found." }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -55,6 +55,6 @@ export async function PATCH(req: Request) {
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

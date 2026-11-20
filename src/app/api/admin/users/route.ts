@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const { name, email, phone, password } = parsed.data;
 
   if (await User.exists({ email })) {
-    return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 });
+    return NextResponse.json({ error: "This email is already registered." }, { status: 409 });
   }
 
   const user = await User.create({

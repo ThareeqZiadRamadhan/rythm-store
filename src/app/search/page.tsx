@@ -8,7 +8,7 @@ type Props = { searchParams: Promise<{ q?: string }> };
 
 export async function generateMetadata({ searchParams }: Props) {
   const { q = "" } = await searchParams;
-  return { title: q ? `Cari "${q}" — RYTHM` : "Cari — RYTHM" };
+  return { title: q ? `Search "${q}" — RYTHM` : "Search — RYTHM" };
 }
 
 export default async function SearchPage({ searchParams }: Props) {
@@ -20,11 +20,11 @@ export default async function SearchPage({ searchParams }: Props) {
     <main>
       <section className="border-b border-black/10 bg-[#dfff47] px-5 py-14 md:px-10 md:py-20">
         <div className="mx-auto max-w-[1440px]">
-          <p className="text-xs font-bold uppercase tracking-[0.22em]">Hasil pencarian</p>
+          <p className="text-xs font-bold uppercase tracking-[0.22em]">Search results</p>
           <h1 className="mt-4 max-w-4xl break-words text-4xl font-black leading-[0.95] tracking-[-0.05em] md:text-7xl">
-            {term ? `“${term}”` : "Cari sepatu."}
+            {term ? `“${term}”` : "Search shoes."}
           </h1>
-          {term && <p className="mt-4 text-sm font-semibold">{results.length} produk ditemukan</p>}
+          {term && <p className="mt-4 text-sm font-semibold">{results.length} {results.length === 1 ? "product" : "products"} found</p>}
         </div>
       </section>
 
@@ -38,15 +38,15 @@ export default async function SearchPage({ searchParams }: Props) {
         ) : (
           <div className="py-24 text-center">
             <p className="text-2xl font-black">
-              {term ? "Belum ada yang cocok." : "Ketik nama sepatu di kolom pencarian."}
+              {term ? "No matches yet." : "Type a shoe name in the search box."}
             </p>
-            <p className="mt-2 text-sm text-black/50">Coba kata lain, atau jelajahi kategori:</p>
+            <p className="mt-2 text-sm text-black/50">Try another word, or browse a category:</p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {[
-                ["Koleksi", "/shop"],
-                ["Pria", "/men"],
-                ["Wanita", "/women"],
-                ["Terbaru", "/new"],
+                ["Shop", "/shop"],
+                ["Men", "/men"],
+                ["Women", "/women"],
+                ["New", "/new"],
                 ["Sale", "/sale"],
               ].map(([label, href]) => (
                 <Link

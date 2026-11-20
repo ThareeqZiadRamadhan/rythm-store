@@ -2,7 +2,7 @@ import ShopPage from "@/views/ShopPage";
 import { getProducts } from "@/lib/catalog";
 import { SIZE_CHART } from "@/lib/sizes";
 
-export const metadata = { title: "Koleksi — RYTHM" };
+export const metadata = { title: "Shop — RYTHM" };
 export const dynamic = "force-dynamic";
 
 export default async function Page({

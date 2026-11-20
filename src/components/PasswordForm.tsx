@@ -17,10 +17,10 @@ export default function PasswordForm() {
     setMsg(null);
 
     if (next.length < 8) {
-      return setMsg({ ok: false, text: "Password baru minimal 8 karakter." });
+      return setMsg({ ok: false, text: "Your new password must be at least 8 characters." });
     }
     if (next !== confirm) {
-      return setMsg({ ok: false, text: "Konfirmasi password tidak sama." });
+      return setMsg({ ok: false, text: "Passwords do not match." });
     }
 
     setSaving(true);
@@ -32,15 +32,15 @@ export default function PasswordForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMsg({ ok: false, text: data.error ?? "Gagal mengubah password." });
+        setMsg({ ok: false, text: data.error ?? "Could not change your password." });
         return;
       }
       setCurrent("");
       setNext("");
       setConfirm("");
-      setMsg({ ok: true, text: "Password berhasil diubah." });
+      setMsg({ ok: true, text: "Your password has been changed." });
     } catch {
-      setMsg({ ok: false, text: "Tidak bisa terhubung ke server." });
+      setMsg({ ok: false, text: "Could not connect to the server." });
     } finally {
       setSaving(false);
     }
@@ -51,10 +51,10 @@ export default function PasswordForm() {
       onSubmit={handleSubmit}
       className="max-w-xl space-y-5 rounded-3xl bg-[#f7f7f2] p-6 md:p-8"
     >
-      <h2 className="text-lg font-black">Ganti password</h2>
+      <h2 className="text-lg font-black">Change password</h2>
 
       <div>
-        <label className="mb-2 block text-sm font-bold">Password saat ini</label>
+        <label className="mb-2 block text-sm font-bold">Current password</label>
         <input
           type="password"
           className={inputClass}
@@ -64,18 +64,18 @@ export default function PasswordForm() {
         />
       </div>
       <div>
-        <label className="mb-2 block text-sm font-bold">Password baru</label>
+        <label className="mb-2 block text-sm font-bold">New password</label>
         <input
           type="password"
           className={inputClass}
           value={next}
           onChange={(e) => setNext(e.target.value)}
-          placeholder="Minimal 8 karakter"
+          placeholder="At least 8 characters"
           autoComplete="new-password"
         />
       </div>
       <div>
-        <label className="mb-2 block text-sm font-bold">Konfirmasi password baru</label>
+        <label className="mb-2 block text-sm font-bold">Confirm new password</label>
         <input
           type="password"
           className={inputClass}
@@ -100,7 +100,7 @@ export default function PasswordForm() {
         disabled={saving || !current || !next || !confirm}
         className="h-12 rounded-full bg-[#11120f] px-8 text-sm font-bold text-white hover:bg-black/80 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {saving ? "Menyimpan..." : "Ubah password"}
+        {saving ? "Saving..." : "Change password"}
       </button>
     </form>
   );

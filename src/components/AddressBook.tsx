@@ -8,7 +8,7 @@ const inputClass =
   "h-12 w-full rounded-lg border border-black/15 bg-white px-4 text-sm outline-none transition placeholder:text-black/35 focus:border-black";
 
 const emptyForm = {
-  label: "Rumah",
+  label: "Home",
   recipient: "",
   phone: "",
   street: "",
@@ -41,14 +41,14 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Gagal menyimpan alamat.");
+        setError(data.error ?? "Could not save the address.");
         return;
       }
       setAddresses(data.addresses);
       setForm(emptyForm);
       setShowForm(false);
     } catch {
-      setError("Tidak bisa terhubung ke server.");
+      setError("Could not connect to the server.");
     } finally {
       setSaving(false);
     }
@@ -61,7 +61,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("Hapus alamat ini?")) return;
+    if (!window.confirm("Delete this address?")) return;
     const res = await fetch(`/api/account/addresses/${id}`, { method: "DELETE" });
     const data = await res.json().catch(() => ({}));
     if (res.ok) setAddresses(data.addresses);
@@ -71,9 +71,9 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
     <div className="rounded-3xl bg-[#f7f7f2] p-6 md:p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black">Alamat pengiriman</h2>
+          <h2 className="text-lg font-black">Shipping addresses</h2>
           <p className="mt-1 text-sm text-black/50">
-            Alamat utama dipakai otomatis saat checkout.
+            Your default address is used automatically at checkout.
           </p>
         </div>
         {!showForm && addresses.length < 5 && (
@@ -81,7 +81,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
             onClick={() => setShowForm(true)}
             className="flex shrink-0 items-center gap-2 rounded-full bg-[#11120f] px-5 py-2.5 text-sm font-bold text-white hover:bg-black/80"
           >
-            <Plus size={16} /> Tambah alamat
+            <Plus size={16} /> Add address
           </button>
         )}
       </div>
@@ -93,16 +93,16 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-bold">Label alamat</label>
+              <label className="mb-2 block text-sm font-bold">Address label</label>
               <input
                 className={inputClass}
                 value={form.label}
                 onChange={(e) => set("label", e.target.value)}
-                placeholder="Rumah, Kantor, Kos..."
+                placeholder="Home, Office, Dorm..."
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-bold">Nama penerima</label>
+              <label className="mb-2 block text-sm font-bold">Recipient name</label>
               <input
                 className={inputClass}
                 value={form.recipient}
@@ -113,7 +113,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-bold">Nomor HP penerima</label>
+            <label className="mb-2 block text-sm font-bold">Recipient's phone number</label>
             <input
               className={inputClass}
               value={form.phone}
@@ -124,19 +124,19 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-bold">Alamat lengkap</label>
+            <label className="mb-2 block text-sm font-bold">Full address</label>
             <textarea
               value={form.street}
               onChange={(e) => set("street", e.target.value)}
               rows={3}
-              placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan"
+              placeholder="Street, house number, RT/RW, village, district"
               className="w-full rounded-lg border border-black/15 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-black/35 focus:border-black"
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="mb-2 block text-sm font-bold">Kota / kabupaten</label>
+              <label className="mb-2 block text-sm font-bold">City / regency</label>
               <input
                 className={inputClass}
                 value={form.city}
@@ -144,7 +144,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-bold">Provinsi</label>
+              <label className="mb-2 block text-sm font-bold">Province</label>
               <input
                 className={inputClass}
                 value={form.province}
@@ -152,7 +152,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-bold">Kode pos</label>
+              <label className="mb-2 block text-sm font-bold">Postal code</label>
               <input
                 className={inputClass}
                 value={form.postalCode}
@@ -171,7 +171,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
                 onChange={(e) => set("isDefault", e.target.checked)}
                 className="size-5 accent-black"
               />
-              Jadikan alamat utama
+              Set as default address
             </label>
           )}
 
@@ -185,7 +185,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
               disabled={saving}
               className="h-11 rounded-full bg-[#11120f] px-7 text-sm font-bold text-white hover:bg-black/80 disabled:opacity-60"
             >
-              {saving ? "Menyimpan..." : "Simpan alamat"}
+              {saving ? "Saving..." : "Save address"}
             </button>
             <button
               type="button"
@@ -195,7 +195,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
               }}
               className="h-11 rounded-full border border-black/15 px-7 text-sm font-bold hover:bg-black/5"
             >
-              Batal
+              Cancel
             </button>
           </div>
         </form>
@@ -207,9 +207,9 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
             <div className="grid size-14 place-items-center rounded-full bg-black/5">
               <MapPin size={22} strokeWidth={1.6} />
             </div>
-            <p className="mt-4 font-bold">Belum ada alamat</p>
+            <p className="mt-4 font-bold">No addresses yet</p>
             <p className="mt-1 max-w-xs text-sm text-black/50">
-              Tambahkan alamat supaya checkout lebih cepat.
+              Add an address for a faster checkout.
             </p>
           </div>
         )}
@@ -227,7 +227,7 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
               </span>
               {a.isDefault && (
                 <span className="rounded-full bg-[#c7ea4c] px-3 py-1 text-xs font-bold">
-                  Utama
+                  Default
                 </span>
               )}
             </div>
@@ -245,14 +245,14 @@ export default function AddressBook({ initial }: { initial: AddressDTO[] }) {
                   onClick={() => makeDefault(a.id)}
                   className="underline underline-offset-4 hover:text-[#5f7a00]"
                 >
-                  Jadikan utama
+                  Set as default
                 </button>
               )}
               <button
                 onClick={() => remove(a.id)}
                 className="flex items-center gap-1.5 text-red-600 hover:underline"
               >
-                <Trash2 size={14} /> Hapus
+                <Trash2 size={14} /> Delete
               </button>
             </div>
           </div>

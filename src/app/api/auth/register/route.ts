@@ -15,23 +15,23 @@ export async function POST(req: Request) {
     const password = String(body.password ?? "");
 
     if (!firstName || !lastName) {
-      return NextResponse.json({ error: "Nama depan dan belakang wajib diisi." }, { status: 400 });
+      return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
     }
     if (!/^\+\d{9,15}$/.test(phone)) {
-      return NextResponse.json({ error: "Nomor HP belum benar." }, { status: 400 });
+      return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
     }
     if (!/^\S+@\S+\.\S+$/.test(email)) {
-      return NextResponse.json({ error: "Format email belum benar." }, { status: 400 });
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
     if (password.length < 8) {
-      return NextResponse.json({ error: "Password minimal 8 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
     }
 
     await connectDB();
 
     const exists = await User.exists({ email });
     if (exists) {
-      return NextResponse.json({ error: "Email sudah terdaftar." }, { status: 409 });
+      return NextResponse.json({ error: "This email is already registered." }, { status: 409 });
     }
 
     // Role selalu USER. Role tidak pernah diambil dari input client.
@@ -51,6 +51,6 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

@@ -31,8 +31,8 @@ export function toDateInput(d: Date | string | null | undefined) {
 
 export function describeVoucher(v: { type: string; value: number; minSpend: number; maxDiscount: number }) {
   const nilai = v.type === "PERCENT" ? `${v.value}%` : formatPrice(v.value);
-  const maks = v.type === "PERCENT" && v.maxDiscount > 0 ? `, maks. ${formatPrice(v.maxDiscount)}` : "";
-  const min = v.minSpend > 0 ? `, min. belanja ${formatPrice(v.minSpend)}` : "";
+  const maks = v.type === "PERCENT" && v.maxDiscount > 0 ? `, max. ${formatPrice(v.maxDiscount)}` : "";
+  const min = v.minSpend > 0 ? `, min. spend ${formatPrice(v.minSpend)}` : "";
   return `${nilai}${maks}${min}`;
 }
 
@@ -42,27 +42,27 @@ export function parseVoucherInput(raw: unknown): { data: VoucherInput } | { erro
 
   const code = str(b.code).toUpperCase().replace(/\s+/g, "");
   if (!/^[A-Z0-9]{3,20}$/.test(code)) {
-    return { error: "Kode harus 3–20 huruf atau angka, tanpa spasi." };
+    return { error: "Code must be 3–20 letters or numbers, with no spaces." };
   }
 
   const title = str(b.title);
-  if (title.length < 3) return { error: "Judul voucher minimal 3 karakter." };
+  if (title.length < 3) return { error: "Voucher title must be at least 3 characters." };
 
   const type = str(b.type) as VoucherType;
-  if (type !== "PERCENT" && type !== "FIXED") return { error: "Pilih jenis voucher." };
+  if (type !== "PERCENT" && type !== "FIXED") return { error: "Please choose a voucher type." };
 
   const value = num(b.value);
   if (type === "PERCENT" && (value < 1 || value > 90)) {
-    return { error: "Diskon persen harus antara 1% dan 90%." };
+    return { error: "Percentage discount must be between 1% and 90%." };
   }
   if (type === "FIXED" && value < 1000) {
-    return { error: "Potongan nominal minimal Rp1.000." };
+    return { error: "Fixed discount must be at least Rp1,000." };
   }
 
   const minSpend = num(b.minSpend);
   const maxDiscount = type === "PERCENT" ? num(b.maxDiscount) : 0;
   if (type === "FIXED" && minSpend > 0 && value > minSpend) {
-    return { error: "Potongan tidak boleh lebih besar dari minimum belanja." };
+    return { error: "The discount cannot be larger than the minimum spend." };
   }
 
   const quota = num(b.quota);
@@ -70,7 +70,7 @@ export function parseVoucherInput(raw: unknown): { data: VoucherInput } | { erro
   const exp = str(b.expiresAt);
   let expiresAt: Date | null = null;
   if (exp) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return { error: "Tanggal berakhir tidak valid." };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(exp)) return { error: "Invalid end date." };
     expiresAt = new Date(`${exp}T23:59:59+07:00`);
   }
 

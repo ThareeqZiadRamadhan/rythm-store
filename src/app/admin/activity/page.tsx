@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin";
 import { ACTIVITY_GROUP, ACTIVITY_LABEL, type ActivityAction } from "@/lib/activityLabels";
 import ActivityLog from "@/models/ActivityLog";
 
-export const metadata = { title: "Log aktivitas — Admin RYTHM" };
+export const metadata = { title: "Activity log — Admin RYTHM" };
 export const dynamic = "force-dynamic";
 
 const TZ = "Asia/Jakarta";
@@ -32,7 +32,7 @@ export default async function ActivityPage({
 
   const byDay = new Map<string, typeof logs>();
   for (const l of logs) {
-    const key = new Date(l.createdAt).toLocaleDateString("id-ID", {
+    const key = new Date(l.createdAt).toLocaleDateString("en-GB", {
       weekday: "long",
       day: "numeric",
       month: "long",
@@ -44,15 +44,15 @@ export default async function ActivityPage({
   }
 
   const tabs: { key: string | null; label: string }[] = [
-    { key: null, label: "Semua" },
+    { key: null, label: "All" },
     ...Object.entries(ACTIVITY_GROUP).map(([key, label]) => ({ key, label })),
   ];
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Log aktivitas</h1>
+      <h1 className="text-3xl font-black tracking-tight">Activity log</h1>
       <p className="mt-2 text-sm text-black/50">
-        Catatan semua perubahan yang dilakukan admin dan superadmin. 200 aktivitas terakhir.
+        A record of every change made by admins and superadmins. Showing the latest 200 entries.
       </p>
 
       <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
@@ -72,9 +72,9 @@ export default async function ActivityPage({
       {logs.length === 0 ? (
         <div className="mt-10 flex flex-col items-center rounded-2xl border border-dashed border-black/15 px-6 py-12 text-center">
           <History size={24} strokeWidth={1.6} />
-          <p className="mt-3 font-bold">Belum ada aktivitas</p>
+          <p className="mt-3 font-bold">No activity yet</p>
           <p className="mt-1 text-sm text-black/50">
-            Perubahan produk, pesanan, dan role akan tercatat di sini.
+            Changes to products, orders and roles will be recorded here.
           </p>
         </div>
       ) : (
@@ -88,7 +88,7 @@ export default async function ActivityPage({
                   return (
                     <li key={String(l._id)} className="flex gap-4 rounded-2xl bg-[#f7f7f2] p-4">
                       <span className="w-12 shrink-0 pt-0.5 text-xs font-semibold tabular-nums text-black/45">
-                        {new Date(l.createdAt).toLocaleTimeString("id-ID", {
+                        {new Date(l.createdAt).toLocaleTimeString("en-GB", {
                           hour: "2-digit",
                           minute: "2-digit",
                           timeZone: TZ,

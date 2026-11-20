@@ -52,8 +52,8 @@ export const products: Product[] = [
     colorName: "Volt Green / Black",
     tag: "Best seller",
     description:
-      "Sepatu training serbaguna untuk HIIT, kelas gym, dan latihan lompat. Upper mesh ringan yang breathable dengan tapak lebar agar tetap stabil saat mendarat.",
-    features: ["Upper mesh breathable", "Bantalan responsif", "Tapak lebar yang stabil"],
+      "A versatile training shoe for HIIT, gym classes and plyometrics. A light, breathable mesh upper sits on a wide base that keeps you stable on every landing.",
+    features: ["Breathable mesh upper", "Responsive cushioning", "Wide, stable base"],
   },
   {
     id: 2,
@@ -68,8 +68,8 @@ export const products: Product[] = [
     colorName: "Lilac / Sky / Rose",
     tag: "New",
     description:
-      "Siluet retro berlapis dengan warna pastel lembut: lilac, biru muda, kuning, dan rose. Nyaman dipakai seharian dan mudah jadi pusat perhatian.",
-    features: ["Panel berlapis warna pastel", "Midsole platform tebal", "Rubber cupsole bergerigi"],
+      "A layered retro silhouette in soft pastels: lilac, sky blue, yellow and rose. Comfortable all day and easy to make the center of any outfit.",
+    features: ["Layered pastel panels", "Chunky platform midsole", "Serrated rubber cupsole"],
   },
   {
     id: 3,
@@ -83,8 +83,8 @@ export const products: Product[] = [
     color: "#e7edf1",
     colorName: "Cloud White",
     description:
-      "Sepatu court minimalis yang cocok untuk semua rotasi outfit. Bersih, klasik, dan tetap relevan setiap musim.",
-    features: ["Upper kulit sintetis premium", "Kerah berbantalan", "Sol karet tahan aus"],
+      "A minimalist court shoe that works with every outfit rotation. Clean, classic and relevant every season.",
+    features: ["Premium synthetic leather upper", "Padded collar", "Durable rubber outsole"],
   },
   {
     id: 4,
@@ -99,8 +99,8 @@ export const products: Product[] = [
     colorName: "Wheat Brown / Sail",
     tag: "Limited",
     description:
-      "Sneaker low-top bergaya workwear dengan upper canvas tebal warna gandum dan aksen kulit cokelat tua. Tahan dipakai harian di jalanan kota.",
-    features: ["Upper canvas tebal tahan aus", "Aksen kulit cokelat tua", "Pull tab di tumit"],
+      "A workwear-inspired low-top with a heavy wheat canvas upper and dark brown leather accents. Built for daily wear on city streets.",
+    features: ["Heavy-duty canvas upper", "Dark brown leather accents", "Heel pull tab"],
   },
   {
     id: 5,
@@ -115,8 +115,8 @@ export const products: Product[] = [
     colorName: "Crimson / Orange",
     tag: "New",
     description:
-      "Sepatu lari fleksibel untuk gerak kaki yang lebih natural. Upper knit ringan memeluk kaki dan tapak lentur mengikuti gerak telapak untuk lari harian.",
-    features: ["Upper knit ringan", "Sol fleksibel dengan alur lentur", "Pas seperti kaos kaki"],
+      "A flexible running shoe for a more natural stride. A light knit upper hugs your foot while the flexible sole moves with you on daily runs.",
+    features: ["Lightweight knit upper", "Flex-groove outsole", "Sock-like fit"],
   },
   {
     id: 6,
@@ -130,8 +130,8 @@ export const products: Product[] = [
     color: "#d8d4c8",
     colorName: "Bone / Black",
     description:
-      "Stabilitas untuk latihan kekuatan tanpa mengorbankan fleksibilitas. Satu pasang untuk seluruh sesi gym.",
-    features: ["Rangka tumit stabil", "Alur fleksibel", "Ujung sepatu diperkuat"],
+      "Stability for strength training without giving up flexibility. One pair for your whole gym session.",
+    features: ["Stable heel counter", "Flex grooves", "Reinforced toe cap"],
   },
 ];
 

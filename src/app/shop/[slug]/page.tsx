@@ -11,7 +11,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  return { title: product ? `${product.name} — RYTHM` : "Produk tidak ditemukan — RYTHM" };
+  return { title: product ? `${product.name} — RYTHM` : "Product not found — RYTHM" };
 }
 
 export default async function Page({ params }: Props) {

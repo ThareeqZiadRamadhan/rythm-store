@@ -22,13 +22,13 @@ export async function PATCH(req: Request) {
     const freeShippingMin = num(b.freeShippingMin);
 
     if (announcementEnabled && announcementText.length < 3) {
-      return NextResponse.json({ error: "Teks pengumuman minimal 3 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Announcement text must be at least 3 characters." }, { status: 400 });
     }
     if (announcementText.length > 120) {
-      return NextResponse.json({ error: "Teks pengumuman maksimal 120 karakter." }, { status: 400 });
+      return NextResponse.json({ error: "Announcement text can be at most 120 characters." }, { status: 400 });
     }
     if (shippingFee > 1_000_000) {
-      return NextResponse.json({ error: "Ongkir maksimal Rp1.000.000." }, { status: 400 });
+      return NextResponse.json({ error: "Shipping fee can be at most Rp1,000,000." }, { status: 400 });
     }
 
     const before = await getSettings();
@@ -40,20 +40,20 @@ export async function PATCH(req: Request) {
 
     const changes: string[] = [];
     if (before.announcementEnabled !== announcementEnabled) {
-      changes.push(announcementEnabled ? "pengumuman ditampilkan" : "pengumuman disembunyikan");
+      changes.push(announcementEnabled ? "announcement shown" : "announcement hidden");
     }
-    if (before.announcementText !== announcementText) changes.push(`pengumuman: "${announcementText}"`);
+    if (before.announcementText !== announcementText) changes.push(`announcement: "${announcementText}"`);
     if (before.shippingFee !== shippingFee) {
-      changes.push(`ongkir ${money(before.shippingFee)} → ${money(shippingFee)}`);
+      changes.push(`shipping ${money(before.shippingFee)} → ${money(shippingFee)}`);
     }
     if (before.freeShippingMin !== freeShippingMin) {
-      changes.push(`batas gratis ongkir ${money(before.freeShippingMin)} → ${money(freeShippingMin)}`);
+      changes.push(`free shipping threshold ${money(before.freeShippingMin)} → ${money(freeShippingMin)}`);
     }
-    if (changes.length) await logActivity(g.admin, "settings.update", "Toko", changes.join("; "));
+    if (changes.length) await logActivity(g.admin, "settings.update", "Store", changes.join("; "));
 
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Terjadi kesalahan di server." }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong on the server." }, { status: 500 });
   }
 }

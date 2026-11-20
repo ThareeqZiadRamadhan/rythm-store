@@ -68,7 +68,7 @@ export default function HeroSlider({ products }: { products: Product[] }) {
       <div className="mx-auto grid max-w-[1440px] items-center gap-3 px-5 pt-6 md:grid-cols-[1fr_auto_1fr] md:px-10">
         <div className="hidden text-sm text-black/55 md:block">
           <p>Drop 01</p>
-          <p>Koleksi RYTHM</p>
+          <p>RYTHM Collection</p>
         </div>
 
         <div className="hide-scrollbar flex max-w-full justify-self-center overflow-x-auto rounded-full bg-black/[0.06] p-1.5">
@@ -88,7 +88,7 @@ export default function HeroSlider({ products }: { products: Product[] }) {
         <div className="flex items-center gap-2 justify-self-end">
           <button
             onClick={() => go(index - 1)}
-            aria-label="Sebelumnya"
+            aria-label="Previous"
             className="grid h-11 w-11 place-items-center rounded-xl border border-black/15 bg-white transition-colors hover:bg-black hover:text-white"
           >
             <ChevronLeft size={18} />
@@ -98,7 +98,7 @@ export default function HeroSlider({ products }: { products: Product[] }) {
           </span>
           <button
             onClick={() => go(index + 1)}
-            aria-label="Berikutnya"
+            aria-label="Next"
             className="grid h-11 w-11 place-items-center rounded-xl border border-black/15 bg-white transition-colors hover:bg-black hover:text-white"
           >
             <ChevronRight size={18} />
@@ -270,7 +270,7 @@ export default function HeroSlider({ products }: { products: Product[] }) {
                 href="/fit"
                 className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-black underline underline-offset-4"
               >
-                <Ruler size={12} /> Cari ukuranmu
+                <Ruler size={12} /> Find your size
               </Link>
             </span>
           </div>
@@ -280,13 +280,13 @@ export default function HeroSlider({ products }: { products: Product[] }) {
               href={`/shop/${current.slug}`}
               className="rounded-full border border-black/25 px-7 py-4 text-sm font-medium transition-colors hover:bg-black hover:text-white"
             >
-              Lihat detail
+              View details
             </Link>
             <Link
               href={`/shop/${current.slug}`}
               className="rounded-full bg-[#111] px-7 py-4 text-sm font-medium text-white transition-colors hover:bg-black/80"
             >
-              Beli sekarang <span className="ml-2 text-white/60">{rupiah(current.price)}</span>
+              Buy now <span className="ml-2 text-white/60">{rupiah(current.price)}</span>
             </Link>
           </div>
         </div>

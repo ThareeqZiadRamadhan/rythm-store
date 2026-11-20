@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import AuthPage from "@/views/AuthPage";
 import { getSession } from "@/lib/auth";
 
-export const metadata = { title: "Daftar — RYTHM" };
+export const metadata = { title: "Sign up — RYTHM" };
 
 export default async function RegisterPage() {
   const session = await getSession();

@@ -19,7 +19,7 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import User from "@/models/User";
 
-export const metadata = { title: "Dashboard admin — RYTHM" };
+export const metadata = { title: "Admin dashboard — RYTHM" };
 export const dynamic = "force-dynamic";
 
 const TZ = "Asia/Jakarta";
@@ -35,7 +35,7 @@ const dayKey = (d: Date) =>
   }).format(d);
 
 const shortDate = (d: Date) =>
-  d.toLocaleDateString("id-ID", { day: "numeric", month: "short", timeZone: TZ });
+  d.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: TZ });
 
 function pct(curr: number, prev: number) {
   if (prev === 0) return curr > 0 ? 100 : 0;
@@ -169,10 +169,10 @@ export default async function AdminDashboard({
   const prevAov = prev.orders ? Math.round(prev.revenue / prev.orders) : 0;
 
   const kpis = [
-    { label: "Pendapatan", value: formatPrice(curr.revenue), trend: pct(curr.revenue, prev.revenue), icon: Wallet },
-    { label: "Pesanan", value: String(curr.orders), trend: pct(curr.orders, prev.orders), icon: Receipt },
-    { label: "Rata-rata per pesanan", value: formatPrice(aov), trend: pct(aov, prevAov), icon: ShoppingBag },
-    { label: "Pasang terjual", value: String(curr.pairs), trend: pct(curr.pairs, prev.pairs), icon: Footprints },
+    { label: "Revenue", value: formatPrice(curr.revenue), trend: pct(curr.revenue, prev.revenue), icon: Wallet },
+    { label: "Orders", value: String(curr.orders), trend: pct(curr.orders, prev.orders), icon: Receipt },
+    { label: "Average order value", value: formatPrice(aov), trend: pct(aov, prevAov), icon: ShoppingBag },
+    { label: "Pairs sold", value: String(curr.pairs), trend: pct(curr.pairs, prev.pairs), icon: Footprints },
   ];
 
   const byDay = new Map(daily.map((d) => [d._id, d]));
@@ -191,9 +191,9 @@ export default async function AdminDashboard({
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight">Halo, {admin.name.split(" ")[0]}</h1>
+          <h1 className="text-3xl font-black tracking-tight">Hi, {admin.name.split(" ")[0]}</h1>
           <p className="mt-2 text-sm text-black/50">
-            Performa toko {days} hari terakhir, dibanding {days} hari sebelumnya.
+            Store performance over the last {days} days, compared with the {days} days before.
           </p>
         </div>
         <div className="flex rounded-full bg-[#f7f7f2] p-1">
@@ -205,7 +205,7 @@ export default async function AdminDashboard({
                 r === days ? "bg-[#11120f] text-white" : "text-black/60 hover:text-black"
               }`}
             >
-              {r} hari
+              {r} days
             </Link>
           ))}
         </div>
@@ -232,16 +232,16 @@ export default async function AdminDashboard({
           className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm hover:border-amber-400"
         >
           <Clock size={18} className="text-amber-700" />
-          <span className="font-bold">{pending}</span> pesanan menunggu konfirmasi
+          <span className="font-bold">{pending}</span> {pending === 1 ? "order" : "orders"} awaiting confirmation
           <ArrowRight size={16} className="ml-auto" />
         </Link>
         <div className="flex items-center gap-3 rounded-2xl bg-[#f7f7f2] px-4 py-3 text-sm">
           <Tag size={18} />
-          <span className="font-bold">{activeProducts}</span> produk aktif di toko
+          <span className="font-bold">{activeProducts}</span> active {activeProducts === 1 ? "product" : "products"} in store
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-[#f7f7f2] px-4 py-3 text-sm">
           <UserPlus size={18} />
-          <span className="font-bold">{newUsers}</span> pengguna baru
+          <span className="font-bold">{newUsers}</span> new {newUsers === 1 ? "user" : "users"}
           <span className="ml-auto">
             <Trend value={pct(newUsers, prevNewUsers)} />
           </span>
@@ -250,8 +250,8 @@ export default async function AdminDashboard({
 
       <section className="rounded-3xl bg-[#f7f7f2] p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-lg font-black">Pendapatan harian</h2>
-          <p className="text-sm text-black/50">Tertinggi {formatPrice(maxRev === 1 ? 0 : maxRev)} per hari</p>
+          <h2 className="text-lg font-black">Daily revenue</h2>
+          <p className="text-sm text-black/50">Peak {formatPrice(maxRev === 1 ? 0 : maxRev)} per day</p>
         </div>
         <div className="mt-6 flex h-52 items-end gap-[3px]">
           {series.map((s) => (
@@ -265,7 +265,7 @@ export default async function AdminDashboard({
               <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#11120f] px-3 py-2 text-xs text-white shadow-lg group-hover:block">
                 <p className="font-bold">{shortDate(s.date)}</p>
                 <p>{formatPrice(s.revenue)}</p>
-                <p className="text-white/60">{s.orders} pesanan</p>
+                <p className="text-white/60">{s.orders} {s.orders === 1 ? "order" : "orders"}</p>
               </div>
             </div>
           ))}
@@ -279,9 +279,9 @@ export default async function AdminDashboard({
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="rounded-3xl bg-[#f7f7f2] p-6">
-          <h2 className="text-lg font-black">Produk terlaris</h2>
+          <h2 className="text-lg font-black">Best sellers</h2>
           {topProducts.length === 0 ? (
-            <p className="mt-4 text-sm text-black/50">Belum ada penjualan di periode ini.</p>
+            <p className="mt-4 text-sm text-black/50">No sales in this period yet.</p>
           ) : (
             <ol className="mt-4 space-y-2">
               {topProducts.map((p, i) => (
@@ -295,7 +295,7 @@ export default async function AdminDashboard({
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{p.name}</p>
-                    <p className="text-xs text-black/50">{p.qty} pasang terjual</p>
+                    <p className="text-xs text-black/50">{p.qty} {p.qty === 1 ? "pair" : "pairs"} sold</p>
                   </div>
                   <p className="text-sm font-bold">{formatPrice(p.revenue)}</p>
                 </li>
@@ -305,9 +305,9 @@ export default async function AdminDashboard({
         </section>
 
         <section className="rounded-3xl bg-[#f7f7f2] p-6">
-          <h2 className="text-lg font-black">Penjualan per kategori</h2>
+          <h2 className="text-lg font-black">Sales by category</h2>
           {byCategory.length === 0 ? (
-            <p className="mt-4 text-sm text-black/50">Belum ada penjualan di periode ini.</p>
+            <p className="mt-4 text-sm text-black/50">No sales in this period yet.</p>
           ) : (
             <ul className="mt-5 space-y-4">
               {byCategory.map((c) => (
@@ -315,7 +315,7 @@ export default async function AdminDashboard({
                   <div className="flex justify-between text-sm">
                     <span className="font-semibold">{c._id}</span>
                     <span className="text-black/60">
-                      {formatPrice(c.revenue)} · {c.qty} pasang
+                      {formatPrice(c.revenue)} · {c.qty} {c.qty === 1 ? "pair" : "pairs"}
                     </span>
                   </div>
                   <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white">
@@ -329,7 +329,7 @@ export default async function AdminDashboard({
             </ul>
           )}
 
-          <h3 className="mt-8 text-sm font-black">Metode pembayaran</h3>
+          <h3 className="mt-8 text-sm font-black">Payment methods</h3>
           {byPayment.length === 0 ? (
             <p className="mt-2 text-sm text-black/50">-</p>
           ) : (
@@ -340,7 +340,7 @@ export default async function AdminDashboard({
                   <p className="mt-1 text-xl font-black">
                     {Math.round((p.n / Math.max(1, totalPayments)) * 100)}%
                   </p>
-                  <p className="text-xs text-black/50">{p.n} pesanan</p>
+                  <p className="text-xs text-black/50">{p.n} {p.n === 1 ? "order" : "orders"}</p>
                 </li>
               ))}
             </ul>
@@ -349,7 +349,7 @@ export default async function AdminDashboard({
       </div>
 
       <section className="rounded-3xl bg-[#f7f7f2] p-6">
-        <h2 className="text-lg font-black">Semua pesanan per status</h2>
+        <h2 className="text-lg font-black">All orders by status</h2>
         <div className="mt-4 grid gap-2 sm:grid-cols-3 xl:grid-cols-5">
           {(Object.keys(STATUS_LABEL) as OrderStatus[]).map((s) => (
             <Link
@@ -369,13 +369,13 @@ export default async function AdminDashboard({
       <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <section className="rounded-3xl bg-[#f7f7f2] p-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black">Pesanan terbaru</h2>
+            <h2 className="text-lg font-black">Latest orders</h2>
             <Link href="/admin/orders" className="flex items-center gap-1 text-sm font-bold hover:underline">
-              Semua <ArrowRight size={16} />
+              View all <ArrowRight size={16} />
             </Link>
           </div>
           {recent.length === 0 ? (
-            <p className="mt-4 text-sm text-black/50">Belum ada pesanan.</p>
+            <p className="mt-4 text-sm text-black/50">No orders yet.</p>
           ) : (
             <ul className="mt-4 space-y-2">
               {recent.map((o) => {
@@ -385,7 +385,7 @@ export default async function AdminDashboard({
                   <li key={o.orderNumber} className="flex items-center gap-3 rounded-2xl bg-white p-3">
                     <div className="min-w-0 flex-1">
                       <p className="font-mono text-sm font-bold">{o.orderNumber}</p>
-                      <p className="truncate text-xs text-black/50">{customer?.name ?? "User dihapus"}</p>
+                      <p className="truncate text-xs text-black/50">{customer?.name ?? "Deleted user"}</p>
                     </div>
                     <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_CLASS[st]}`}>
                       {STATUS_LABEL[st]}
@@ -400,10 +400,10 @@ export default async function AdminDashboard({
 
         <section className="rounded-3xl bg-[#f7f7f2] p-6">
           <h2 className="flex items-center gap-2 text-lg font-black">
-            <AlertTriangle size={18} className="text-amber-600" /> Stok menipis
+            <AlertTriangle size={18} className="text-amber-600" /> Low stock
           </h2>
           {lowStock.length === 0 ? (
-            <p className="mt-4 text-sm text-black/50">Semua ukuran stoknya aman.</p>
+            <p className="mt-4 text-sm text-black/50">Every size is well stocked.</p>
           ) : (
             <ul className="mt-4 space-y-2">
               {lowStock.map((s) => (
@@ -415,7 +415,7 @@ export default async function AdminDashboard({
                     {s.name} <span className="font-normal text-black/50">· EU {s.size}</span>
                   </span>
                   <span className={`font-bold ${s.stock === 0 ? "text-red-600" : "text-amber-700"}`}>
-                    {s.stock === 0 ? "Habis" : `Sisa ${s.stock}`}
+                    {s.stock === 0 ? "Sold out" : `${s.stock} left`}
                   </span>
                 </li>
               ))}
@@ -425,7 +425,7 @@ export default async function AdminDashboard({
             href="/admin/products"
             className="mt-4 flex items-center gap-1 text-sm font-bold hover:underline"
           >
-            Atur stok <ArrowRight size={16} />
+            Manage stock <ArrowRight size={16} />
           </Link>
         </section>
       </div>

@@ -4,7 +4,7 @@ export const ROLES = ["USER", "ADMIN", "SUPERADMIN"] as const;
 
 const addressSchema = new Schema(
   {
-    label: { type: String, default: "Rumah" },
+    label: { type: String, default: "Home" },
     recipient: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
     street: { type: String, required: true, trim: true },

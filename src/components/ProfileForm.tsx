@@ -33,15 +33,15 @@ export default function ProfileForm({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMsg({ ok: false, text: data.error ?? "Gagal menyimpan." });
+        setMsg({ ok: false, text: data.error ?? "Could not save your changes." });
         return;
       }
       setName(data.user.name);
       setPhone(data.user.phone ?? "");
-      setMsg({ ok: true, text: "Profil berhasil disimpan." });
+      setMsg({ ok: true, text: "Your profile has been saved." });
       router.refresh();
     } catch {
-      setMsg({ ok: false, text: "Tidak bisa terhubung ke server." });
+      setMsg({ ok: false, text: "Could not connect to the server." });
     } finally {
       setSaving(false);
     }
@@ -52,11 +52,11 @@ export default function ProfileForm({
       onSubmit={handleSubmit}
       className="space-y-5 rounded-3xl bg-[#f7f7f2] p-6 md:p-8"
     >
-      <h2 className="text-lg font-black">Data diri</h2>
+      <h2 className="text-lg font-black">Personal details</h2>
 
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-bold">Nama lengkap</label>
+          <label className="mb-2 block text-sm font-bold">Full name</label>
           <input
             className={inputClass}
             value={name}
@@ -66,7 +66,7 @@ export default function ProfileForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold">Nomor HP</label>
+          <label className="mb-2 block text-sm font-bold">Phone number</label>
           <input
             className={inputClass}
             value={phone}
@@ -81,7 +81,7 @@ export default function ProfileForm({
       <div>
         <label className="mb-2 block text-sm font-bold">Email</label>
         <input className={inputClass} value={email} disabled />
-        <p className="mt-1.5 text-xs text-black/45">Email tidak bisa diubah.</p>
+        <p className="mt-1.5 text-xs text-black/45">Email cannot be changed.</p>
       </div>
 
       {msg && (
@@ -99,7 +99,7 @@ export default function ProfileForm({
         disabled={saving}
         className="h-12 rounded-full bg-[#11120f] px-8 text-sm font-bold text-white hover:bg-black/80 disabled:opacity-60"
       >
-        {saving ? "Menyimpan..." : "Simpan perubahan"}
+        {saving ? "Saving..." : "Save changes"}
       </button>
     </form>
   );

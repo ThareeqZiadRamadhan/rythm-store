@@ -3,49 +3,49 @@ import { getSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Bantuan — RYTHM" };
+export const metadata = { title: "Help — RYTHM" };
 
-export default async function BantuanPage() {
+export default async function HelpPage() {
   const settings = await getSettings();
 
-  const ongkir =
+  const shippingCost =
     settings.shippingFee === 0
-      ? "Semua pesanan gratis ongkir ke seluruh Indonesia."
+      ? "Every order ships free anywhere in Indonesia."
       : settings.freeShippingMin > 0
-        ? `Ongkir ${formatPrice(settings.shippingFee)} per pesanan, dan gratis untuk belanja minimal ${formatPrice(settings.freeShippingMin)}.`
-        : `Ongkir ${formatPrice(settings.shippingFee)} per pesanan ke seluruh Indonesia.`;
+        ? `Shipping is ${formatPrice(settings.shippingFee)} per order, and free on orders of ${formatPrice(settings.freeShippingMin)} or more.`
+        : `Shipping is ${formatPrice(settings.shippingFee)} per order anywhere in Indonesia.`;
 
   const sections = [
     {
-      id: "pengiriman",
-      title: "Pengiriman",
+      id: "shipping",
+      title: "Shipping",
       items: [
-        { q: "Berapa ongkos kirimnya?", a: ongkir },
+        { q: "How much is shipping?", a: shippingCost },
         {
-          q: "Berapa lama pesanan sampai?",
-          a: "Pesanan diproses 1×24 jam di hari kerja. Estimasi tiba 2–4 hari untuk Pulau Jawa dan 3–7 hari untuk luar Jawa.",
+          q: "How long does delivery take?",
+          a: "Orders are processed within 24 hours on business days. Delivery takes an estimated 2–4 days within Java and 3–7 days outside Java.",
         },
         {
-          q: "Bagaimana cara melacak pesanan?",
-          a: "Buka menu Pesanan saya di akunmu. Status pesanan berubah dari Menunggu konfirmasi, Diproses, Dikirim, sampai Selesai.",
+          q: "How do I track my order?",
+          a: "Open My orders in your account. Your order moves from Awaiting confirmation to Processing, Shipped and finally Delivered.",
         },
       ],
     },
     {
-      id: "retur",
-      title: "Retur & penukaran",
+      id: "returns",
+      title: "Returns & exchanges",
       items: [
         {
-          q: "Ukurannya tidak pas, bisa tukar?",
-          a: "Bisa. Ajukan penukaran ukuran maksimal 7 hari setelah pesanan diterima, selama stok ukuran yang diminta masih tersedia.",
+          q: "The size doesn't fit. Can I exchange it?",
+          a: "Yes. Request a size exchange within 14 days of delivery, as long as the size you want is still in stock.",
         },
         {
-          q: "Apa syarat barang yang bisa diretur?",
-          a: "Sepatu belum dipakai di luar ruangan, tidak rusak, dan dikirim kembali lengkap dengan kotak serta label aslinya.",
+          q: "What can be returned?",
+          a: "Shoes that have not been worn outdoors, are undamaged, and are sent back with the original box and tags.",
         },
         {
-          q: "Bagaimana cara mengajukan retur?",
-          a: "Hubungi kami dengan menyertakan nomor pesanan dan alasan retur. Tim kami akan membalas dengan langkah pengiriman barang.",
+          q: "How do I request a return?",
+          a: "Contact us with your order number and the reason for the return. Our team will reply with instructions for sending the item back.",
         },
       ],
     },
@@ -55,10 +55,10 @@ export default async function BantuanPage() {
     <main className="mx-auto max-w-[1440px] px-5 pb-24 pt-12 md:px-10 md:pt-20">
       <nav aria-label="Breadcrumb" className="flex items-center gap-2.5 text-[15px]">
         <Link href="/" className="text-black/50 transition hover:text-black">
-          Beranda
+          Home
         </Link>
         <span className="text-black/30">/</span>
-        <span>Bantuan</span>
+        <span>Help</span>
       </nav>
 
       <h1
@@ -70,10 +70,10 @@ export default async function BantuanPage() {
           fontSize: "clamp(52px, 7.5vw, 116px)",
         }}
       >
-        Pusat <span className="text-[#a3a3a0]">Bantuan</span>
+        Help <span className="text-[#a3a3a0]">Center</span>
       </h1>
       <p className="mt-6 max-w-xl text-[18px] leading-relaxed text-black/65">
-        Semua yang perlu kamu tahu soal pengiriman, pelacakan pesanan, dan penukaran ukuran.
+        Everything you need to know about shipping, order tracking and size exchanges.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
@@ -90,7 +90,7 @@ export default async function BantuanPage() {
           href="/fit"
           className="rounded-full bg-white px-5 py-2.5 text-[15px] ring-1 ring-black/[0.06] transition hover:ring-black/20"
         >
-          Cari ukuran
+          Find your size
         </Link>
       </div>
 

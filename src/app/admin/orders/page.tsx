@@ -5,7 +5,7 @@ import { PAYMENT_LABEL, STATUS_LABEL, type OrderStatus } from "@/lib/orderStatus
 import Order from "@/models/Order";
 import OrderStatusControl from "@/components/admin/OrderStatusControl";
 
-export const metadata = { title: "Pesanan — Admin RYTHM" };
+export const metadata = { title: "Orders — Admin RYTHM" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrders({
@@ -30,7 +30,7 @@ export default async function AdminOrders({
   const total = countAgg.reduce((s, c) => s + c.n, 0);
 
   const tabs: { key: OrderStatus | null; label: string; n: number }[] = [
-    { key: null, label: "Semua", n: total },
+    { key: null, label: "All", n: total },
     ...(Object.keys(STATUS_LABEL) as OrderStatus[]).map((k) => ({
       key: k,
       label: STATUS_LABEL[k],
@@ -40,8 +40,8 @@ export default async function AdminOrders({
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Pesanan</h1>
-      <p className="mt-2 text-sm text-black/50">Kelola dan ubah status pesanan pelanggan.</p>
+      <h1 className="text-3xl font-black tracking-tight">Orders</h1>
+      <p className="mt-2 text-sm text-black/50">Manage customer orders and update their status.</p>
 
       <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
         {tabs.map((t) => (
@@ -59,7 +59,7 @@ export default async function AdminOrders({
 
       {orders.length === 0 ? (
         <p className="mt-10 rounded-2xl border border-dashed border-black/15 p-10 text-center text-sm text-black/50">
-          Tidak ada pesanan di kategori ini.
+          No orders in this category.
         </p>
       ) : (
         <div className="mt-6 space-y-4">
@@ -72,7 +72,7 @@ export default async function AdminOrders({
                   <div>
                     <p className="font-mono text-sm font-bold">{o.orderNumber}</p>
                     <p className="mt-1 text-xs text-black/50">
-                      {new Date(o.createdAt).toLocaleString("id-ID", {
+                      {new Date(o.createdAt).toLocaleString("en-GB", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
@@ -84,7 +84,7 @@ export default async function AdminOrders({
                   <div className="flex flex-col items-end gap-1">
                     <OrderStatusControl id={String(o._id)} status={o.status as OrderStatus} />
                     {o.status === "CANCELLED" && o.cancelledBy === "USER" && (
-                      <span className="text-xs text-black/50">Dibatalkan oleh pelanggan</span>
+                      <span className="text-xs text-black/50">Cancelled by customer</span>
                     )}
                   </div>
                 </div>
@@ -101,7 +101,7 @@ export default async function AdminOrders({
                     ))}
                   </ul>
                   <div className="text-black/60">
-                    <p className="font-semibold text-black">{customer?.name ?? "User dihapus"}</p>
+                    <p className="font-semibold text-black">{customer?.name ?? "Deleted user"}</p>
                     <p className="truncate">{customer?.email}</p>
                     <p className="mt-1">
                       {addr?.recipient} · {addr?.city}, {addr?.province}

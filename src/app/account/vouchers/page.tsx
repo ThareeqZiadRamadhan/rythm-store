@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import { getVoucherLists } from "@/lib/vouchers";
 import VoucherCenter from "@/components/VoucherCenter";
 
-export const metadata = { title: "Voucher saya — RYTHM" };
+export const metadata = { title: "My vouchers — RYTHM" };
 export const dynamic = "force-dynamic";
 
 export default async function VouchersPage() {
@@ -16,8 +16,8 @@ export default async function VouchersPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Voucher saya</h1>
-      <p className="mb-8 mt-2 text-sm text-black/50">Voucher dan promo untuk akunmu.</p>
+      <h1 className="text-3xl font-black tracking-tight">My vouchers</h1>
+      <p className="mb-8 mt-2 text-sm text-black/50">Vouchers and promos for your account.</p>
       <VoucherCenter initialClaimed={claimed} initialAvailable={available} />
     </div>
   );

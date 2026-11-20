@@ -8,55 +8,55 @@ import Order from "@/models/Order";
 import AccountEmpty from "@/components/AccountEmpty";
 import CancelOrderButton from "@/components/CancelOrderButton";
 
-export const metadata = { title: "Pesanan saya — RYTHM" };
+export const metadata = { title: "My orders — RYTHM" };
 export const dynamic = "force-dynamic";
 
 const statusMap = {
-  PENDING: { label: "Menunggu konfirmasi", cls: "bg-amber-100 text-amber-800" },
-  PROCESSING: { label: "Diproses", cls: "bg-sky-100 text-sky-800" },
-  SHIPPED: { label: "Dikirim", cls: "bg-indigo-100 text-indigo-800" },
-  DELIVERED: { label: "Selesai", cls: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Dibatalkan", cls: "bg-black/10 text-black/50" },
+  PENDING: { label: "Awaiting confirmation", cls: "bg-amber-100 text-amber-800" },
+  PROCESSING: { label: "Processing", cls: "bg-sky-100 text-sky-800" },
+  SHIPPED: { label: "Shipped", cls: "bg-indigo-100 text-indigo-800" },
+  DELIVERED: { label: "Delivered", cls: "bg-green-100 text-green-800" },
+  CANCELLED: { label: "Cancelled", cls: "bg-black/10 text-black/50" },
 } as const;
 
 const paymentLabel = {
-  TRANSFER: "Transfer bank",
+  TRANSFER: "Bank transfer",
   EWALLET: "E-wallet",
-  COD: "Bayar di tempat (COD)",
+  COD: "Cash on delivery (COD)",
 } as const;
 
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ baru?: string }>;
+  searchParams: Promise<{ new?: string }>;
 }) {
   const session = await getSession();
   if (!session) redirect("/login");
-  const { baru } = await searchParams;
+  const { new: newOrder } = await searchParams;
 
   await connectDB();
   const orders = await Order.find({ user: session.sub }).sort({ createdAt: -1 }).lean();
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Pesanan saya</h1>
-      <p className="mb-8 mt-2 text-sm text-black/50">Riwayat dan status pesananmu.</p>
+      <h1 className="text-3xl font-black tracking-tight">My orders</h1>
+      <p className="mb-8 mt-2 text-sm text-black/50">Your order history and status.</p>
 
       {orders.length === 0 ? (
         <AccountEmpty
           icon={Package}
-          title="Belum ada pesanan"
-          text="Pesanan yang kamu buat akan muncul di sini."
+          title="No orders yet"
+          text="Orders you place will show up here."
           href="/shop"
-          cta="Mulai belanja"
+          cta="Start shopping"
         />
       ) : (
         <div className="space-y-5">
           {orders.map((o) => {
             const status = statusMap[o.status as keyof typeof statusMap] ?? statusMap.PENDING;
-            const isNew = baru === o.orderNumber;
+            const isNew = newOrder === o.orderNumber;
             const pairs = o.items.reduce((s, i) => s + i.quantity, 0);
-            const date = new Date(o.createdAt).toLocaleString("id-ID", {
+            const date = new Date(o.createdAt).toLocaleString("en-GB", {
               day: "numeric",
               month: "long",
               year: "numeric",
@@ -74,7 +74,7 @@ export default async function OrdersPage({
               >
                 {isNew && (
                   <div className="mb-5 flex items-center gap-2 rounded-2xl bg-green-50 px-4 py-3 text-sm font-semibold text-green-700">
-                    <CheckCircle2 size={18} /> Pesanan berhasil dibuat. Terima kasih!
+                    <CheckCircle2 size={18} /> Order placed successfully. Thank you!
                   </div>
                 )}
 
@@ -82,7 +82,7 @@ export default async function OrdersPage({
                   <div>
                     <p className="font-mono text-sm font-bold">{o.orderNumber}</p>
                     <p className="mt-1 text-xs text-black/50">
-                      {date} · {pairs} pasang
+                      {date} · {pairs} {pairs === 1 ? "pair" : "pairs"}
                     </p>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-xs font-bold ${status.cls}`}>
@@ -118,7 +118,7 @@ export default async function OrdersPage({
                 <div className="mt-5 grid gap-5 border-t border-black/10 pt-5 text-sm md:grid-cols-2">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-black/40">
-                      Dikirim ke
+                      Ship to
                     </p>
                     <p className="mt-1 font-bold">
                       {addr?.recipient} <span className="font-normal text-black/50">· {addr?.phone}</span>
@@ -127,7 +127,7 @@ export default async function OrdersPage({
                       {addr?.street}, {addr?.city}, {addr?.province} {addr?.postalCode}
                     </p>
                     <p className="mt-3 text-xs font-bold uppercase tracking-wider text-black/40">
-                      Pembayaran
+                      Payment
                     </p>
                     <p className="mt-1">
                       {paymentLabel[o.paymentMethod as keyof typeof paymentLabel] ?? o.paymentMethod}
@@ -140,8 +140,8 @@ export default async function OrdersPage({
                       <dd>{formatPrice(o.subtotal)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-black/60">Ongkir</dt>
-                      <dd>{o.shippingFee === 0 ? "Gratis" : formatPrice(o.shippingFee)}</dd>
+                      <dt className="text-black/60">Shipping</dt>
+                      <dd>{o.shippingFee === 0 ? "Free" : formatPrice(o.shippingFee)}</dd>
                     </div>
                     {(o.discount ?? 0) > 0 && (
                       <div className="flex justify-between text-green-700">
@@ -159,15 +159,15 @@ export default async function OrdersPage({
                 {o.status === "PENDING" && (
                   <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-5">
                     <p className="text-xs text-black/50">
-                      Pesanan masih bisa dibatalkan selama belum diproses toko.
+                      You can cancel this order until the store starts processing it.
                     </p>
                     <CancelOrderButton id={String(o._id)} orderNumber={o.orderNumber} />
                   </div>
                 )}
                 {o.status === "CANCELLED" && (
                   <p className="mt-5 border-t border-black/10 pt-5 text-xs text-black/50">
-                    {o.cancelledBy === "USER" ? "Kamu membatalkan pesanan ini." : "Pesanan ini dibatalkan oleh toko."}{" "}
-                    Stok dan voucher sudah dikembalikan.
+                    {o.cancelledBy === "USER" ? "You cancelled this order." : "This order was cancelled by the store."}{" "}
+                    Stock and any voucher used have been restored.
                   </p>
                 )}
               </article>
